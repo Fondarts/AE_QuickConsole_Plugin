@@ -1,4 +1,4 @@
-// Simple Effect Scanner V11 - Only scans 2 specific folders
+// Simple Effect Scanner V12 - Only scans 2 specific folders
 var allEffects = [];
 var allEffectsWithPaths = [];
 
@@ -292,19 +292,30 @@ function fixCCEffectNames() {
         "BezWarp New": "Bezier Warp",
         "Bilateral": "Bilateral Blur",
         "BilateralBlur": "Bilateral Blur",
+        "BlockLoad": "CC Block Load",
         "BoxBlur": "Box Blur",
+        "BurnFilm": "CC Burn Film",
         "BrightnessContrast": "Brightness & Contrast",
         "BrushStrokes": "Brush Strokes",
         "CameraLensBlur": "Camera Lens Blur",
+        "CannedWarp": "CC Canned Warp",
         "ChangeColor": "Change Color",
         "ChangeToColor": "Change to Color",
         "ChannelBlur": "Channel Blur",
+        "CineonEffect": "Cineon Converter",
+        "Color Balance 2": "Color Balance",
         "ColorBalance": "Color Balance",
+        "Color Diff": "Color Difference Key",
         "ColorDifferenceKey": "Color Difference Key",
+        "Color Emboss": "Color Emboss",
         "ColorEmboss": "Color Emboss",
+        "Color HLS": "Hue & Saturation",
         "ColorKey": "Color Key",
         "ColorLink": "Color Link",
+        "ColorNeutralizer": "CC Color Neutralizer",
+        "ColorOffset": "CC Color Offset",
         "ColorRange": "Color Range",
+        "ColorShift": "Color Shift",
         "CompoundBlur": "Compound Blur",
         "CornerPin": "Corner Pin",
         "DepthMatte": "Depth Matte",
