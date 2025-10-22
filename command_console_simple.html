@@ -67,6 +67,47 @@
         .effect-item:last-child {
             border-bottom: none;
         }
+        .command-section {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .command-section input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #555;
+            border-radius: 4px;
+            background-color: #333;
+            color: #fff;
+            font-size: 12px;
+        }
+        
+        .command-section input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        
+        .execute-button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+        
+        .execute-button:hover {
+            background: #1976D2;
+        }
+        
+        .execute-button:active {
+            background: #1565C0;
+        }
+        
         .export-section {
             margin: 15px 0;
             text-align: center;
@@ -91,10 +132,15 @@
 </head>
 <body>
     <div class="container">
-        <h1>Simple Effect Scanner <span style="color: #4CAF50; font-size: 14px;">V12</span></h1>
+        <h1>Simple Effect Scanner <span style="color: #4CAF50; font-size: 14px;">V18</span></h1>
         
         <div class="search-section">
             <input type="text" id="search-input" placeholder="Search effects..." autocomplete="off">
+        </div>
+        
+        <div class="command-section">
+            <input type="text" id="command-input" placeholder="Layer commands: select 1,5,7 | solo 1,3 | solo (selected) | unselect 2 | unsolo 1" autocomplete="off">
+            <button id="execute-btn" class="execute-button">Execute</button>
         </div>
         
         <div class="status" id="status">Loading...</div>
@@ -200,6 +246,36 @@
             }
         }
         
+        function executeCommand() {
+            var command = document.getElementById('command-input').value;
+            if (!command || command.trim() === '') {
+                updateStatus("Please enter a command");
+                return;
+            }
+            
+            updateStatus("Executing command: " + command + "...");
+            
+            try {
+                // Escape the command properly for JSX
+                var escapedCommand = command.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/'/g, "\\'");
+                var jsxCall = 'processLayerCommand("' + escapedCommand + '")';
+                
+                csInterface.evalScript(jsxCall, function(result) {
+                    if (result && result !== 'EvalScript error.') {
+                        updateStatus(result);
+                        // Clear status after 3 seconds
+                        setTimeout(function() {
+                            updateStatus("Found " + document.querySelectorAll('.effect-item').length + " effects - Click any effect to apply it");
+                        }, 3000);
+                    } else {
+                        updateStatus("Error executing command: " + result);
+                    }
+                });
+            } catch (e) {
+                updateStatus("Error: " + e.toString());
+            }
+        }
+        
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             updateStatus("Scanning effects...");
@@ -209,6 +285,16 @@
             
             // Add event listener for export button
             document.getElementById('export-btn').addEventListener('click', exportEffects);
+            
+            // Add event listener for execute button
+            document.getElementById('execute-btn').addEventListener('click', executeCommand);
+            
+            // Add event listener for command input (Enter key)
+            document.getElementById('command-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    executeCommand();
+                }
+            });
             
             // Wait a moment for JSX to initialize, then load effects
             setTimeout(function() {

@@ -1,4 +1,4 @@
-// Simple Effect Scanner V12 - Only scans 2 specific folders
+// Simple Effect Scanner V18 - Only scans 2 specific folders
 var allEffects = [];
 var allEffectsWithPaths = [];
 
@@ -175,6 +175,168 @@ function applyEffect(effectName) {
     }
 }
 
+// Process layer selection commands
+function processLayerCommand(command) {
+    try {
+        // Validate command parameter
+        if (!command || typeof command !== 'string') {
+            return "Error: Invalid command parameter.";
+        }
+        
+        var comp = app.project.activeItem;
+        if (!comp || !(comp instanceof CompItem)) {
+            return "Error: Please select a composition first.";
+        }
+        
+        var layers = comp.layers;
+        if (layers.length === 0) {
+            return "Error: No layers in composition.";
+        }
+        
+        // Parse command - handle trim safely
+        var trimmedCommand = command.replace(/^\s+|\s+$/g, ''); // Manual trim
+        if (trimmedCommand === '') {
+            return "Error: Empty command.";
+        }
+        
+        var parts = trimmedCommand.split(" ");
+        var action = parts[0].toLowerCase();
+        
+        app.beginUndoGroup(action.charAt(0).toUpperCase() + action.substring(1) + " Layers");
+        
+        if (action === "select") {
+            if (parts.length < 2) {
+                return "Error: Please specify layer numbers. Example: select 1,5,7";
+            }
+            
+            var layerNumbers = parts[1];
+            var numbers = layerNumbers.split(",");
+            var layerIndices = [];
+            
+            // Convert to layer indices (After Effects uses 1-based indexing)
+            for (var i = 0; i < numbers.length; i++) {
+                var numStr = numbers[i].replace(/^\s+|\s+$/g, ''); // Manual trim
+                var num = parseInt(numStr);
+                if (num >= 1 && num <= layers.length) {
+                    layerIndices.push(num); // After Effects uses 1-based indexing
+                } else {
+                    return "Error: Layer " + num + " does not exist. Composition has " + layers.length + " layers.";
+                }
+            }
+            
+            // Select specified layers (add to selection)
+            for (var j = 0; j < layerIndices.length; j++) {
+                layers[layerIndices[j]].selected = true;
+            }
+            return "Success: Selected layers " + layerNumbers;
+            
+        } else if (action === "unselect") {
+            if (parts.length < 2) {
+                return "Error: Please specify layer numbers. Example: unselect 1,5,7";
+            }
+            
+            var layerNumbers = parts[1];
+            var numbers = layerNumbers.split(",");
+            var layerIndices = [];
+            
+            // Convert to layer indices (After Effects uses 1-based indexing)
+            for (var i = 0; i < numbers.length; i++) {
+                var numStr = numbers[i].replace(/^\s+|\s+$/g, ''); // Manual trim
+                var num = parseInt(numStr);
+                if (num >= 1 && num <= layers.length) {
+                    layerIndices.push(num); // After Effects uses 1-based indexing
+                } else {
+                    return "Error: Layer " + num + " does not exist. Composition has " + layers.length + " layers.";
+                }
+            }
+            
+            // Unselect specified layers
+            for (var k = 0; k < layerIndices.length; k++) {
+                layers[layerIndices[k]].selected = false;
+            }
+            return "Success: Unselected layers " + layerNumbers;
+            
+        } else if (action === "solo") {
+            var layerIndices = [];
+            
+            if (parts.length >= 2) {
+                // Solo specified layers
+                var layerNumbers = parts[1];
+                var numbers = layerNumbers.split(",");
+                
+                // Convert to layer indices (After Effects uses 1-based indexing)
+                for (var i = 0; i < numbers.length; i++) {
+                    var numStr = numbers[i].replace(/^\s+|\s+$/g, ''); // Manual trim
+                    var num = parseInt(numStr);
+                    if (num >= 1 && num <= layers.length) {
+                        layerIndices.push(num); // After Effects uses 1-based indexing
+                    } else {
+                        return "Error: Layer " + num + " does not exist. Composition has " + layers.length + " layers.";
+                    }
+                }
+            } else {
+                // Solo selected layers
+                for (var l = 0; l < layers.length; l++) {
+                    if (layers[l + 1].selected) { // After Effects uses 1-based indexing
+                        layerIndices.push(l + 1); // Store 1-based index
+                    }
+                }
+                if (layerIndices.length === 0) {
+                    return "Error: No layers selected. Please select layers first or specify layer numbers.";
+                }
+            }
+            
+            // Solo specified layers (hide all others) - using Adobe's Layer.solo property
+            for (var m = 1; m <= layers.length; m++) {
+                layers[m].solo = false; // First, unsolo all layers (1-based indexing)
+            }
+            for (var n = 0; n < layerIndices.length; n++) {
+                layers[layerIndices[n]].solo = true; // Then solo specified layers
+            }
+            
+            if (parts.length >= 2) {
+                return "Success: Solo layers " + parts[1];
+            } else {
+                return "Success: Solo selected layers";
+            }
+            
+        } else if (action === "unsolo") {
+            if (parts.length < 2) {
+                return "Error: Please specify layer numbers. Example: unsolo 1,5,7";
+            }
+            
+            var layerNumbers = parts[1];
+            var numbers = layerNumbers.split(",");
+            var layerIndices = [];
+            
+            // Convert to layer indices (After Effects uses 1-based indexing)
+            for (var i = 0; i < numbers.length; i++) {
+                var numStr = numbers[i].replace(/^\s+|\s+$/g, ''); // Manual trim
+                var num = parseInt(numStr);
+                if (num >= 1 && num <= layers.length) {
+                    layerIndices.push(num); // After Effects uses 1-based indexing
+                } else {
+                    return "Error: Layer " + num + " does not exist. Composition has " + layers.length + " layers.";
+                }
+            }
+            
+            // Unsolo specified layers
+            for (var o = 0; o < layerIndices.length; o++) {
+                layers[layerIndices[o]].solo = false;
+            }
+            return "Success: Unsolo layers " + layerNumbers;
+            
+        } else {
+            return "Error: Unknown command '" + action + "'. Use: select, unselect, solo, or unsolo";
+        }
+        
+                } catch (e) {
+        return "Error: " + e.toString();
+    } finally {
+        app.endUndoGroup();
+    }
+}
+
 // Export effects list with paths
 function exportEffectsList() {
     try {
@@ -205,7 +367,7 @@ function exportEffectsList() {
             return "Error: Could not create export file.";
         }
         
-                } catch (e) {
+    } catch (e) {
         return "Error exporting effects: " + e.toString();
     }
 }
