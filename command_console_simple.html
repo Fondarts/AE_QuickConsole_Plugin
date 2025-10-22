@@ -132,7 +132,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Simple Effect Scanner <span style="color: #4CAF50; font-size: 14px;">V26</span></h1>
+        <h1>Simple Effect Scanner <span style="color: #4CAF50; font-size: 14px;">V28</span></h1>
         
         <div class="search-section">
             <input type="text" id="search-input" placeholder="Search effects and commands..." autocomplete="off">
@@ -233,6 +233,7 @@
                         // Check if this is a command that needs parameters
                         if (result.indexOf("Enter layer numbers") !== -1) {
                             pendingCommand = effectName;
+                            document.getElementById('search-input').value = ''; // Clear the input field
                             updateStatus("Enter layer numbers (e.g., 1,2,4) or press Enter for selected layers");
                         } else {
                             updateStatus(result);
