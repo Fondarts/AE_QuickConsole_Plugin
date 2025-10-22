@@ -1,4 +1,4 @@
-// Simple Effect Scanner V03 - Only scans 2 specific folders
+// Simple Effect Scanner V05 - Only scans 2 specific folders
 var allEffects = [];
 var allEffectsWithPaths = [];
 
@@ -30,6 +30,7 @@ function scanFolder(folderPath) {
                         var effectName = file.name.substring(0, file.name.indexOf(".aex"));
                         effectName = effectName.replace(/_/g, " ");
                         effectName = effectName.replace(/-/g, " ");
+                        effectName = effectName.replace(/%20/g, " "); // Decode URL spaces
                         if (effectName && effectName !== "" && effectName.length > 1) {
                             effects.push({
                                 name: effectName,
@@ -271,11 +272,86 @@ function fixCCEffectNames() {
         "Wireframe": "CC Wireframe"
     };
     
+    // Additional effects that need spacing fixes
+    var additionalEffectsMap = {
+        "3DGlasses": "3D Glasses",
+        "3DCameraTracker": "3D Camera Tracker",
+        "3DGlasses": "3D Glasses",
+        "AudioSpectrum": "Audio Spectrum",
+        "AudioWaveform": "Audio Waveform",
+        "AutoColor": "Auto Color",
+        "AutoContrast": "Auto Contrast",
+        "AutoLevels": "Auto Levels",
+        "BevelAlpha": "Bevel Alpha",
+        "BevelEdges": "Bevel Edges",
+        "BilateralBlur": "Bilateral Blur",
+        "BoxBlur": "Box Blur",
+        "BrightnessContrast": "Brightness & Contrast",
+        "BrushStrokes": "Brush Strokes",
+        "CameraLensBlur": "Camera Lens Blur",
+        "ChangeColor": "Change Color",
+        "ChangeToColor": "Change to Color",
+        "ChannelBlur": "Channel Blur",
+        "ColorBalance": "Color Balance",
+        "ColorDifferenceKey": "Color Difference Key",
+        "ColorEmboss": "Color Emboss",
+        "ColorKey": "Color Key",
+        "ColorLink": "Color Link",
+        "ColorRange": "Color Range",
+        "CompoundBlur": "Compound Blur",
+        "CornerPin": "Corner Pin",
+        "DepthMatte": "Depth Matte",
+        "DepthOfField": "Depth of Field",
+        "DifferenceMatte": "Difference Matte",
+        "DirectionalBlur": "Directional Blur",
+        "DropShadow": "Drop Shadow",
+        "DustScratches": "Dust & Scratches",
+        "ExpressionControls": "Expression Controls",
+        "FastBlur": "Fast Blur",
+        "GaussianBlur": "Gaussian Blur",
+        "Glow": "Glow",
+        "GradientWipe": "Gradient Wipe",
+        "HueSaturation": "Hue & Saturation",
+        "InnerShadow": "Inner Shadow",
+        "LensFlare": "Lens Flare",
+        "Levels": "Levels",
+        "LinearWipe": "Linear Wipe",
+        "MotionBlur": "Motion Blur",
+        "Noise": "Noise",
+        "NoiseHLS": "Noise HLS",
+        "NoiseHLSAuto": "Noise HLS Auto",
+        "Offset": "Offset",
+        "OpticalCompensation": "Optical Compensation",
+        "ParticlePlayground": "Particle Playground",
+        "PathText": "Path Text",
+        "Posterize": "Posterize",
+        "RadialBlur": "Radial Blur",
+        "RadialWipe": "Radial Wipe",
+        "ReduceInterlaceFlicker": "Reduce Interlace Flicker",
+        "Ripple": "Ripple",
+        "Shatter": "Shatter",
+        "Sharpen": "Sharpen",
+        "ShiftChannels": "Shift Channels",
+        "Spherize": "Spherize",
+        "Text": "Text",
+        "TimeDisplacement": "Time Displacement",
+        "Tint": "Tint",
+        "TurbulentDisplace": "Turbulent Displace",
+        "Twirl": "Twirl",
+        "UnsharpMask": "Unsharp Mask",
+        "VectorPaint": "Vector Paint",
+        "VenetianBlinds": "Venetian Blinds",
+        "WaveWarp": "Wave Warp",
+        "Wiggler": "Wiggler"
+    };
+    
     // Update allEffects array
     for (var i = 0; i < allEffects.length; i++) {
         var effectName = allEffects[i];
         if (ccEffectsMap[effectName]) {
             allEffects[i] = ccEffectsMap[effectName];
+        } else if (additionalEffectsMap[effectName]) {
+            allEffects[i] = additionalEffectsMap[effectName];
         }
     }
     
@@ -284,6 +360,8 @@ function fixCCEffectNames() {
         var effect = allEffectsWithPaths[j];
         if (ccEffectsMap[effect.name]) {
             effect.name = ccEffectsMap[effect.name];
+        } else if (additionalEffectsMap[effect.name]) {
+            effect.name = additionalEffectsMap[effect.name];
         }
     }
 }
