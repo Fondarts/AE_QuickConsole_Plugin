@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Simple Effect Scanner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #2a2a2a;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #4CAF50;
+            text-align: center;
+        }
+        .search-section {
+            margin: 10px 0;
+        }
+        .search-section input {
+            width: 100%;
+            padding: 12px;
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .search-section input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        .search-section input::placeholder {
+            color: #888;
+        }
+        .status {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        .effects-list {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .effect-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #333;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .effect-item:hover {
+            background-color: #333;
+        }
+        .effect-item:last-child {
+            border-bottom: none;
+        }
+        .export-section {
+            margin: 15px 0;
+            text-align: center;
+        }
+        .export-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .export-button:hover {
+            background: #45a049;
+        }
+        .export-button:active {
+            background: #3d8b40;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Simple Effect Scanner <span style="color: #4CAF50; font-size: 14px;">V02</span></h1>
+        
+        <div class="search-section">
+            <input type="text" id="search-input" placeholder="Search effects..." autocomplete="off">
+        </div>
+        
+        <div class="status" id="status">Loading...</div>
+        
+        <div class="effects-list" id="effects-list">
+            <div>Scanning effects...</div>
+        </div>
+        
+        <div class="export-section">
+            <button id="export-btn" class="export-button">Export Effects List</button>
+        </div>
+    </div>
+    
+    <script src="js/lib/CSInterface.js"></script>
+    <script>
+        let csInterface = new CSInterface();
+        let allEffects = [];
+        
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
+        }
+        
+        function updateEffectsList() {
+            try {
+                csInterface.evalScript('getEffectsList()', function(result) {
+                    if (result && result !== 'EvalScript error.') {
+                        if (result === "No effects found") {
+                            allEffects = [];
+                            displayEffects([]);
+                        } else {
+                            allEffects = result.split('\n');
+                            displayEffects(allEffects);
+                        }
+                        updateStatus("Found " + allEffects.length + " effects - Click any effect to apply it");
+                    } else {
+                        updateStatus("Error loading effects: " + result);
+                    }
+                });
+            } catch (e) {
+                updateStatus("Error: " + e.toString());
+            }
+        }
+        
+        function displayEffects(effects) {
+            var effectsList = document.getElementById('effects-list');
+            if (effects.length === 0) {
+                effectsList.innerHTML = '<div>No effects found</div>';
+            } else {
+                var html = '';
+                for (var i = 0; i < effects.length; i++) {
+                    html += '<div class="effect-item" onclick="applyEffect(\'' + effects[i].replace(/'/g, "\\'") + '\')">' + (i + 1) + '. ' + effects[i] + '</div>';
+                }
+                effectsList.innerHTML = html;
+            }
+        }
+        
+        function filterEffects() {
+            var searchTerm = document.getElementById('search-input').value.toLowerCase();
+            var filteredEffects = allEffects.filter(function(effect) {
+                return effect.toLowerCase().indexOf(searchTerm) !== -1;
+            });
+            displayEffects(filteredEffects);
+            updateStatus("Showing " + filteredEffects.length + " of " + allEffects.length + " effects");
+        }
+        
+        function applyEffect(effectName) {
+            updateStatus("Applying effect: " + effectName + "...");
+            
+            try {
+                csInterface.evalScript('applyEffect("' + effectName.replace(/"/g, '\\"') + '")', function(result) {
+                    if (result && result !== 'EvalScript error.') {
+                        updateStatus(result);
+                        // Clear status after 3 seconds
+                        setTimeout(function() {
+                            updateStatus("Found " + document.querySelectorAll('.effect-item').length + " effects - Click any effect to apply it");
+                        }, 3000);
+                    } else {
+                        updateStatus("Error applying effect: " + result);
+                    }
+                });
+            } catch (e) {
+                updateStatus("Error: " + e.toString());
+            }
+        }
+        
+        function exportEffects() {
+            updateStatus("Exporting effects list...");
+            
+            try {
+                csInterface.evalScript('exportEffectsList()', function(result) {
+                    if (result && result !== 'EvalScript error.') {
+                        updateStatus(result);
+                        // Clear status after 3 seconds
+                        setTimeout(function() {
+                            updateStatus("Found " + allEffects.length + " effects - Click any effect to apply it");
+                        }, 3000);
+                    } else {
+                        updateStatus("Error exporting effects: " + result);
+                    }
+                });
+            } catch (e) {
+                updateStatus("Error: " + e.toString());
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatus("Scanning effects...");
+            
+            // Add event listener for search input
+            document.getElementById('search-input').addEventListener('input', filterEffects);
+            
+            // Add event listener for export button
+            document.getElementById('export-btn').addEventListener('click', exportEffects);
+            
+            // Wait a moment for JSX to initialize, then load effects
+            setTimeout(function() {
+                updateEffectsList();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

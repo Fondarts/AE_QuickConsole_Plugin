@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Basic Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #2a2a2a; 
+            color: white; 
+        }
+        button { 
+            padding: 15px 30px; 
+            background: #4CAF50; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-size: 16px;
+        }
+        button:hover { background: #45a049; }
+        #output { 
+            background: #1a1a1a; 
+            padding: 15px; 
+            margin-top: 20px; 
+            border-radius: 5px; 
+            min-height: 100px; 
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>Basic JSX Test</h1>
+    <p>This tests the most basic JSX communication possible.</p>
+    
+    <button onclick="testBasic()">Test Basic Communication</button>
+    
+    <div id="output"></div>
+    
+    <script src="js/lib/CSInterface.js"></script>
+    <script>
+        let csInterface = new CSInterface();
+        
+        function log(message) {
+            const output = document.getElementById('output');
+            output.innerHTML += new Date().toLocaleTimeString() + ': ' + message + '<br>';
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        function testBasic() {
+            log('Testing basic JSX communication...');
+            
+            csInterface.evalScript('test()', function(result) {
+                if (result === 'EvalScript error.') {
+                    log('ERROR: Basic communication failed - Syntax error in JSX');
+                } else {
+                    log('SUCCESS: ' + result);
+                }
+            });
+        }
+        
+        // Test on load
+        window.onload = function() {
+            log('Page loaded, ready to test');
+        };
+    </script>
+</body>
+</html>
+

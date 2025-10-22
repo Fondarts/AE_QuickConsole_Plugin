@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Command Console</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 15px; 
+            background: #2a2a2a; 
+            color: white; 
+            margin: 0;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        h1 {
+            color: #4CAF50;
+            margin: 0;
+            font-size: 18px;
+        }
+        .settings-btn {
+            background: #444;
+            border: 1px solid #666;
+            border-radius: 4px;
+            color: white;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .settings-btn:hover {
+            background: #555;
+            border-color: #777;
+        }
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 20px;
+            font-size: 12px;
+        }
+        .input-section {
+            margin-bottom: 20px;
+        }
+        #command-input {
+            width: 100%;
+            padding: 12px 15px;
+            background: #1a1a1a;
+            border: 2px solid #444;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            box-sizing: border-box;
+        }
+        #command-input:focus {
+            border-color: #4CAF50;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.3);
+        }
+        #command-input::placeholder {
+            color: #666;
+        }
+        .suggestions {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            max-height: 150px;
+            overflow-y: auto;
+            display: none;
+        }
+        .suggestion-item {
+            padding: 8px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #333;
+            font-size: 13px;
+        }
+        .suggestion-item:hover,
+        .suggestion-item.selected {
+            background: #4CAF50;
+            color: #000;
+        }
+        .help-section {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .help-title {
+            color: #4CAF50;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .help-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 12px;
+        }
+        .help-category {
+            margin-bottom: 8px;
+        }
+        .help-category strong {
+            color: #4CAF50;
+        }
+        .help-commands {
+            color: #ccc;
+            margin-left: 10px;
+        }
+        .shortcut-info {
+            background: #1a1a1a;
+            border: 1px solid #4CAF50;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 12px;
+            color: #4CAF50;
+        }
+        .status {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            font-size: 12px;
+            color: #aaa;
+            min-height: 20px;
+        }
+        .status.success {
+            color: #4CAF50;
+            border-color: #4CAF50;
+        }
+        .status.error {
+            color: #ff6b6b;
+            border-color: #ff6b6b;
+        }
+        .status.warning {
+            color: #ffa500;
+            border-color: #ffa500;
+        }
+        
+        /* Settings Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+        }
+        .modal-content {
+            background-color: #2a2a2a;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #444;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 500px;
+            max-height: 80%;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+        }
+        .modal-title {
+            color: #4CAF50;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: white;
+        }
+        .setting-group {
+            margin-bottom: 20px;
+        }
+        .setting-label {
+            display: block;
+            color: #4CAF50;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .setting-input {
+            width: 100%;
+            padding: 8px 12px;
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: white;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .setting-input:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        .setting-description {
+            color: #aaa;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .shortcut-test {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            text-align: center;
+            color: #aaa;
+            font-size: 12px;
+        }
+        .shortcut-test.active {
+            border-color: #4CAF50;
+            color: #4CAF50;
+        }
+        .shortcut-test.conflict {
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+        }
+        .shortcut-test.available {
+            border-color: #4CAF50;
+            color: #4CAF50;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #444;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #45a049;
+        }
+        .btn-secondary {
+            background: #666;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Command Console</h1>
+            <button class="settings-btn" onclick="openSettings()">⚙️</button>
+        </div>
+        <p class="subtitle">Type commands and press Enter to execute</p>
+        
+        <div class="shortcut-info" id="shortcut-info">
+            <strong>Shortcut:</strong> <span id="current-shortcut">Not set</span>
+        </div>
+        
+        <div class="input-section">
+            <input type="text" id="command-input" placeholder="Enter command (e.g., mute, duplicate, Gaussian Blur)..." autocomplete="off">
+            <div class="suggestions" id="suggestions"></div>
+        </div>
+        
+        <div class="help-section">
+            <div class="help-title">Available Commands</div>
+            <div class="help-grid">
+                <div class="help-category">
+                    <strong>Layer Operations:</strong>
+                    <div class="help-commands">mute, unmute, solo, unsolo, duplicate, delete, hide, show</div>
+                </div>
+                <div class="help-category">
+                    <strong>Transform:</strong>
+                    <div class="help-commands">reset</div>
+                </div>
+                <div class="help-category">
+                    <strong>Create Elements:</strong>
+                    <div class="help-commands">null, adjustment, shape, camera, light</div>
+                </div>
+                <div class="help-category">
+                    <strong>Effects:</strong>
+                    <div class="help-commands">Any effect name (e.g., Gaussian Blur, Glow)</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="status" id="status">Ready - Select layers and type commands</div>
+    </div>
+    
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Plugin Settings</div>
+                <span class="close" onclick="closeSettings()">&times;</span>
+            </div>
+            
+            <div class="setting-group">
+                <label class="setting-label">Keyboard Shortcut</label>
+                <input type="text" class="setting-input" id="shortcut-input" placeholder="Press keys to set shortcut..." readonly>
+                <div class="setting-description">Click in the field and press the key combination you want to use</div>
+                <div class="shortcut-test" id="shortcut-test">
+                    Click in the field above and press your desired key combination
+                </div>
+            </div>
+            
+            <div class="setting-group">
+                <label class="setting-label">Auto-focus Input</label>
+                <input type="checkbox" id="auto-focus" checked>
+                <div class="setting-description">Automatically focus the input field when the console opens</div>
+            </div>
+            
+            <div class="setting-group">
+                <label class="setting-label">Show Suggestions</label>
+                <input type="checkbox" id="show-suggestions" checked>
+                <div class="setting-description">Show command suggestions as you type</div>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeSettings()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/lib/CSInterface.js"></script>
+    <script>
+        let csInterface = new CSInterface();
+        let selectedSuggestionIndex = -1;
+        let suggestions = [];
+        let currentShortcut = '';
+        let isRecordingShortcut = false;
+        
+        // Command suggestions
+        const commandSuggestions = [
+            // Layer operations
+            "mute", "unmute", "solo", "unsolo", "duplicate", "delete", "hide", "show",
+            // Transform
+            "reset",
+            // Create elements
+            "null", "adjustment", "shape", "camera", "light",
+            // Common effects
+            "Gaussian Blur", "Glow", "Lumetri Color", "Curves", "Levels", "Hue/Saturation",
+            "Turbulent Displace", "Noise", "Sharpen", "Drop Shadow", "Fill", "Fast Box Blur",
+            "Invert", "Exposure", "Transform", "Color Correction", "Stylize", "Distort"
+        ];
+        
+        // Load settings on startup
+        function loadSettings() {
+            const settings = JSON.parse(localStorage.getItem('commandConsoleSettings') || '{}');
+            currentShortcut = settings.shortcut || '';
+            document.getElementById('current-shortcut').textContent = currentShortcut || 'Not set';
+            document.getElementById('auto-focus').checked = settings.autoFocus !== false;
+            document.getElementById('show-suggestions').checked = settings.showSuggestions !== false;
+        }
+        
+        // Save settings
+        function saveSettings() {
+            const settings = {
+                shortcut: currentShortcut,
+                autoFocus: document.getElementById('auto-focus').checked,
+                showSuggestions: document.getElementById('show-suggestions').checked
+            };
+            localStorage.setItem('commandConsoleSettings', JSON.stringify(settings));
+            closeSettings();
+            updateStatus("Settings saved successfully", "success");
+        }
+        
+        // Open settings modal
+        function openSettings() {
+            document.getElementById('settingsModal').style.display = 'block';
+            document.getElementById('shortcut-input').value = currentShortcut;
+        }
+        
+        // Close settings modal
+        function closeSettings() {
+            document.getElementById('settingsModal').style.display = 'none';
+            isRecordingShortcut = false;
+            document.getElementById('shortcut-test').className = 'shortcut-test';
+            document.getElementById('shortcut-test').textContent = 'Click in the field above and press your desired key combination';
+        }
+        
+        // Handle shortcut recording
+        function startShortcutRecording() {
+            isRecordingShortcut = true;
+            document.getElementById('shortcut-test').className = 'shortcut-test active';
+            document.getElementById('shortcut-test').textContent = 'Press your desired key combination...';
+        }
+        
+        function stopShortcutRecording(shortcut) {
+            isRecordingShortcut = false;
+            currentShortcut = shortcut;
+            document.getElementById('shortcut-input').value = shortcut;
+            
+            // Check if shortcut conflicts with After Effects
+            checkShortcutConflict(shortcut);
+        }
+        
+        function checkShortcutConflict(shortcut) {
+            // Common After Effects shortcuts to check against
+            const aeShortcuts = [
+                'Ctrl+N', 'Ctrl+O', 'Ctrl+S', 'Ctrl+Z', 'Ctrl+Y', 'Ctrl+X', 'Ctrl+C', 'Ctrl+V',
+                'Ctrl+A', 'Ctrl+D', 'Ctrl+Shift+D', 'Ctrl+Alt+D', 'Ctrl+Shift+A', 'Ctrl+Alt+A',
+                'Ctrl+Shift+C', 'Ctrl+Alt+C', 'Ctrl+Shift+V', 'Ctrl+Alt+V', 'Ctrl+Shift+Z',
+                'Ctrl+1', 'Ctrl+2', 'Ctrl+3', 'Ctrl+4', 'Ctrl+5', 'Ctrl+6', 'Ctrl+7', 'Ctrl+8', 'Ctrl+9',
+                'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12',
+                'Space', 'Enter', 'Escape', 'Tab', 'Shift+Tab', 'Delete', 'Backspace'
+            ];
+            
+            const testElement = document.getElementById('shortcut-test');
+            
+            if (aeShortcuts.includes(shortcut)) {
+                testElement.className = 'shortcut-test conflict';
+                testElement.textContent = '⚠️ This shortcut may conflict with After Effects built-in shortcuts';
+            } else {
+                testElement.className = 'shortcut-test available';
+                testElement.textContent = '✅ This shortcut appears to be available';
+            }
+        }
+        
+        function updateStatus(message, type = '') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = 'status ' + type;
+            
+            // Clear status after 3 seconds
+            setTimeout(() => {
+                status.textContent = 'Ready - Select layers and type commands';
+                status.className = 'status';
+            }, 3000);
+        }
+        
+        function filterSuggestions(query) {
+            if (!document.getElementById('show-suggestions').checked) {
+                document.getElementById('suggestions').style.display = 'none';
+                return;
+            }
+            
+            suggestions = commandSuggestions.filter(cmd => 
+                cmd.toLowerCase().includes(query.toLowerCase())
+            ).slice(0, 10); // Limit to 10 suggestions
+            
+            displaySuggestions();
+            selectedSuggestionIndex = -1;
+        }
+        
+        function displaySuggestions() {
+            const suggestionsContainer = document.getElementById('suggestions');
+            
+            if (suggestions.length > 0) {
+                suggestionsContainer.innerHTML = '';
+                suggestions.forEach((suggestion, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'suggestion-item';
+                    div.textContent = suggestion;
+                    div.addEventListener('click', () => {
+                        executeCommand(suggestion);
+                    });
+                    suggestionsContainer.appendChild(div);
+                });
+                suggestionsContainer.style.display = 'block';
+            } else {
+                suggestionsContainer.style.display = 'none';
+            }
+        }
+        
+        function updateSuggestionSelection() {
+            const items = document.querySelectorAll('.suggestion-item');
+            items.forEach((item, index) => {
+                item.classList.toggle('selected', index === selectedSuggestionIndex);
+            });
+        }
+        
+        function executeCommand(command) {
+            if (!command || !command.trim()) {
+                updateStatus("No command entered", "error");
+                return;
+            }
+            
+            updateStatus("Executing: " + command);
+            
+            // Clear input and hide suggestions
+            document.getElementById('command-input').value = '';
+            document.getElementById('suggestions').style.display = 'none';
+            
+            // Execute the command
+            csInterface.evalScript('processCommand("' + escapeCommand(command) + '")', function(result) {
+                if (result === 'EvalScript error.') {
+                    updateStatus("Error: Script execution failed", "error");
+                } else if (result && result.indexOf('Error:') === 0) {
+                    updateStatus(result, "error");
+                } else {
+                    updateStatus(result, "success");
+                }
+            });
+        }
+        
+        function escapeCommand(command) {
+            return command.replace(/\\/g, '\\\\')
+                         .replace(/"/g, '\\"')
+                         .replace(/'/g, "\\'")
+                         .replace(/\n/g, '\\n')
+                         .replace(/\r/g, '\\r');
+        }
+        
+        // Setup event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSettings();
+            
+            const input = document.getElementById('command-input');
+            const suggestionsContainer = document.getElementById('suggestions');
+            const shortcutInput = document.getElementById('shortcut-input');
+            
+            // Input events
+            input.addEventListener('input', function() {
+                const query = this.value.trim();
+                if (query.length > 0) {
+                    filterSuggestions(query);
+                } else {
+                    suggestionsContainer.style.display = 'none';
+                }
+            });
+            
+            input.addEventListener('keydown', function(e) {
+                const suggestionsContainer = document.getElementById('suggestions');
+                
+                switch(e.key) {
+                    case 'Enter':
+                        e.preventDefault();
+                        if (selectedSuggestionIndex >= 0 && suggestions[selectedSuggestionIndex]) {
+                            executeCommand(suggestions[selectedSuggestionIndex]);
+                        } else {
+                            executeCommand(this.value);
+                        }
+                        break;
+                        
+                    case 'Escape':
+                        suggestionsContainer.style.display = 'none';
+                        this.blur();
+                        break;
+                        
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        if (suggestions.length > 0) {
+                            selectedSuggestionIndex = Math.min(selectedSuggestionIndex + 1, suggestions.length - 1);
+                            updateSuggestionSelection();
+                        }
+                        break;
+                        
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        if (suggestions.length > 0) {
+                            selectedSuggestionIndex = Math.max(selectedSuggestionIndex - 1, 0);
+                            updateSuggestionSelection();
+                        }
+                        break;
+                }
+            });
+            
+            input.addEventListener('focus', function() {
+                if (this.value.trim().length > 0) {
+                    filterSuggestions(this.value);
+                }
+            });
+            
+            input.addEventListener('blur', function() {
+                // Delay hiding suggestions to allow clicks
+                setTimeout(() => {
+                    document.getElementById('suggestions').style.display = 'none';
+                }, 200);
+            });
+            
+            // Shortcut input events
+            shortcutInput.addEventListener('focus', startShortcutRecording);
+            shortcutInput.addEventListener('keydown', function(e) {
+                if (!isRecordingShortcut) return;
+                
+                e.preventDefault();
+                
+                let shortcut = '';
+                if (e.ctrlKey) shortcut += 'Ctrl+';
+                if (e.shiftKey) shortcut += 'Shift+';
+                if (e.altKey) shortcut += 'Alt+';
+                
+                // Handle special keys
+                if (e.key === 'Control' || e.key === 'Shift' || e.key === 'Alt') {
+                    return; // Don't record modifier keys alone
+                }
+                
+                if (e.key === ' ') {
+                    shortcut += 'Space';
+                } else if (e.key === 'Enter') {
+                    shortcut += 'Enter';
+                } else if (e.key === 'Escape') {
+                    shortcut += 'Escape';
+                } else if (e.key === 'Tab') {
+                    shortcut += 'Tab';
+                } else if (e.key === 'Delete') {
+                    shortcut += 'Delete';
+                } else if (e.key === 'Backspace') {
+                    shortcut += 'Backspace';
+                } else if (e.key.startsWith('F') && e.key.length <= 3) {
+                    shortcut += e.key;
+                } else if (e.key.length === 1) {
+                    shortcut += e.key.toUpperCase();
+                } else {
+                    shortcut += e.key;
+                }
+                
+                stopShortcutRecording(shortcut);
+            });
+            
+            // Auto-focus input if enabled
+            if (document.getElementById('auto-focus').checked) {
+                input.focus();
+            }
+        });
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('settingsModal');
+            if (event.target === modal) {
+                closeSettings();
+            }
+        }
+    </script>
+</body>
+</html>
+

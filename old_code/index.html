@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>AE Quick Console</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+<body>
+    <div id="main-container">
+        <div id="header">
+            <h1>AE Quick Console</h1>
+            <p class="subtitle">Type effect or command. Enter=Apply, Esc=Close</p>
+        </div>
+        
+        <div id="input-section">
+            <input type="text" id="command-input" placeholder="Enter command or effect name..." autocomplete="off">
+            <div id="suggestions-container">
+                <ul id="suggestions-list"></ul>
+            </div>
+        </div>
+        
+        <div id="quick-actions">
+            <h3>Quick Actions</h3>
+            <div class="action-grid">
+                <button class="action-btn" data-command="mute">Mute</button>
+                <button class="action-btn" data-command="unmute">Unmute</button>
+                <button class="action-btn" data-command="duplicate">Duplicate</button>
+                <button class="action-btn" data-command="solo">Solo</button>
+                <button class="action-btn" data-command="unsolo">Unsolo</button>
+                <button class="action-btn" data-command="reset">Reset</button>
+                <button class="action-btn" data-command="center anchor">Center Anchor</button>
+                <button class="action-btn" data-command="center in comp">Center in Comp</button>
+                <button class="action-btn" data-command="fit to comp">Fit to Comp</button>
+                <button class="action-btn" data-command="flip horizontal">Flip H</button>
+                <button class="action-btn" data-command="flip vertical">Flip V</button>
+                <button class="action-btn" data-command="bring to front">Bring to Front</button>
+                <button class="action-btn" data-command="send to back">Send to Back</button>
+                <button class="action-btn" data-command="reverse layers">Reverse Layers</button>
+                <button class="action-btn" data-command="remove effects">Remove Effects</button>
+                <button class="action-btn" data-command="toggle fx">Toggle FX</button>
+            </div>
+        </div>
+        
+        <div id="create-section">
+            <h3>Create Elements</h3>
+            <div class="create-grid">
+                <button class="create-btn" data-command="null">Null</button>
+                <button class="create-btn" data-command="adjustment">Adjustment</button>
+                <button class="create-btn" data-command="shape">Shape</button>
+                <button class="create-btn" data-command="camera">Camera</button>
+                <button class="create-btn" data-command="light">Light</button>
+                <button class="create-btn" data-command="solid red">Red Solid</button>
+                <button class="create-btn" data-command="solid blue">Blue Solid</button>
+                <button class="create-btn" data-command="solid green">Green Solid</button>
+                <button class="create-btn" data-command="solid white">White Solid</button>
+            </div>
+        </div>
+        
+        <div id="blending-section">
+            <h3>Blending Modes</h3>
+            <div class="blending-grid">
+                <button class="blending-btn" data-command="blending normal">Normal</button>
+                <button class="blending-btn" data-command="blending multiply">Multiply</button>
+                <button class="blending-btn" data-command="blending screen">Screen</button>
+                <button class="blending-btn" data-command="blending overlay">Overlay</button>
+                <button class="blending-btn" data-command="blending soft light">Soft Light</button>
+                <button class="blending-btn" data-command="blending hard light">Hard Light</button>
+                <button class="blending-btn" data-command="blending difference">Difference</button>
+                <button class="blending-btn" data-command="blending add">Add</button>
+            </div>
+        </div>
+        
+        <div id="status-bar">
+            <span id="status-text">Ready</span>
+        </div>
+    </div>
+    
+    <script src="js/lib/CSInterface.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
+

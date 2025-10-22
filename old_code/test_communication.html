@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Test Communication</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #2a2a2a; 
+            color: white; 
+        }
+        button { 
+            padding: 10px 20px; 
+            margin: 5px; 
+            background: #4CAF50; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+        }
+        button:hover { background: #45a049; }
+        #output { 
+            background: #1a1a1a; 
+            padding: 10px; 
+            margin-top: 20px; 
+            border-radius: 4px; 
+            min-height: 100px; 
+        }
+    </style>
+</head>
+<body>
+    <h1>AE Quick Console - Communication Test</h1>
+    <p>This page tests the communication between the HTML interface and After Effects JSX engine.</p>
+    
+    <button onclick="testBasic()">Test Basic Communication</button>
+    <button onclick="testMute()">Test Mute Command</button>
+    <button onclick="testUnmute()">Test Unmute Command</button>
+    <button onclick="testDuplicate()">Test Duplicate Command</button>
+    <button onclick="testCreateNull()">Test Create Null</button>
+    
+    <div id="output"></div>
+    
+    <script src="js/lib/CSInterface.js"></script>
+    <script>
+        let csInterface = new CSInterface();
+        
+        function log(message) {
+            const output = document.getElementById('output');
+            output.innerHTML += new Date().toLocaleTimeString() + ': ' + message + '<br>';
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        function testBasic() {
+            log('Testing basic communication...');
+            csInterface.evalScript('"Hello from After Effects"', function(result) {
+                if (result === 'EvalScript error.') {
+                    log('ERROR: Basic communication failed');
+                } else {
+                    log('SUCCESS: ' + result);
+                }
+            });
+        }
+        
+        function testMute() {
+            log('Testing mute command...');
+            csInterface.evalScript('executeCommand("mute")', function(result) {
+                if (result === 'EvalScript error.') {
+                    log('ERROR: Mute command failed');
+                } else {
+                    log('RESULT: ' + result);
+                }
+            });
+        }
+        
+        function testUnmute() {
+            log('Testing unmute command...');
+            csInterface.evalScript('executeCommand("unmute")', function(result) {
+                if (result === 'EvalScript error.') {
+                    log('ERROR: Unmute command failed');
+                } else {
+                    log('RESULT: ' + result);
+                }
+            });
+        }
+        
+        function testDuplicate() {
+            log('Testing duplicate command...');
+            csInterface.evalScript('executeCommand("duplicate")', function(result) {
+                if (result === 'EvalScript error.') {
+                    log('ERROR: Duplicate command failed');
+                } else {
+                    log('RESULT: ' + result);
+                }
+            });
+        }
+        
+        function testCreateNull() {
+            log('Testing create null command...');
+            csInterface.evalScript('executeCommand("null")', function(result) {
+                if (result === 'EvalScript error.') {
+                    log('ERROR: Create null command failed');
+                } else {
+                    log('RESULT: ' + result);
+                }
+            });
+        }
+        
+        // Test basic communication on load
+        window.onload = function() {
+            log('Page loaded, testing basic communication...');
+            testBasic();
+        };
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Solid Creator</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #2a2a2a; 
+            color: white; 
+            margin: 0;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #4CAF50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .color-btn {
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .color-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        .red { background: #ff4444; }
+        .green { background: #44ff44; }
+        .blue { background: #4444ff; }
+        .white { background: #ffffff; color: #333; }
+        .black { background: #333333; }
+        .yellow { background: #ffff44; color: #333; }
+        .cyan { background: #44ffff; color: #333; }
+        .magenta { background: #ff44ff; }
+        .orange { background: #ff8844; }
+        .purple { background: #8844ff; }
+        .status {
+            background: #1a1a1a;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 12px;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Solid Creator</h1>
+        <p style="text-align: center; color: #aaa; margin-bottom: 20px;">
+            Click a color to create a solid layer
+        </p>
+        
+        <div class="color-grid">
+            <button class="color-btn red" data-color="red">Red Solid</button>
+            <button class="color-btn green" data-color="green">Green Solid</button>
+            <button class="color-btn blue" data-color="blue">Blue Solid</button>
+            <button class="color-btn white" data-color="white">White Solid</button>
+            <button class="color-btn black" data-color="black">Black Solid</button>
+            <button class="color-btn yellow" data-color="yellow">Yellow Solid</button>
+            <button class="color-btn cyan" data-color="cyan">Cyan Solid</button>
+            <button class="color-btn magenta" data-color="magenta">Magenta Solid</button>
+            <button class="color-btn orange" data-color="orange">Orange Solid</button>
+            <button class="color-btn purple" data-color="purple">Purple Solid</button>
+        </div>
+        
+        <div class="status" id="status">Ready - Select a color</div>
+    </div>
+    
+    <script src="js/lib/CSInterface.js"></script>
+    <script>
+        let csInterface = new CSInterface();
+        
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
+        }
+        
+        function createSolid(color) {
+            updateStatus("Creating " + color + " solid...");
+            
+            csInterface.evalScript('createSolid("' + color + '")', function(result) {
+                if (result === 'EvalScript error.') {
+                    updateStatus("Error: Script execution failed");
+                } else {
+                    updateStatus("Result: " + result);
+                }
+            });
+        }
+        
+        // Setup button events
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('.color-btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const color = this.getAttribute('data-color');
+                    createSolid(color);
+                });
+            });
+            
+            updateStatus("Ready - Click a color to create solid");
+        });
+    </script>
+</body>
+</html>
+

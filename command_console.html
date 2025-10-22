@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Command Console</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 15px; 
+            background: #2a2a2a; 
+            color: white; 
+            margin: 0;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #4CAF50;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 20px;
+            font-size: 12px;
+        }
+        .input-section {
+            margin-bottom: 20px;
+        }
+        #command-input {
+            width: 100%;
+            padding: 12px 15px;
+            background: #1a1a1a;
+            border: 2px solid #444;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            box-sizing: border-box;
+        }
+        #command-input:focus {
+            border-color: #4CAF50;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.3);
+        }
+        #command-input::placeholder {
+            color: #666;
+        }
+        .suggestions {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            max-height: 150px;
+            overflow-y: auto;
+            display: none;
+        }
+        .suggestion-item {
+            padding: 8px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #333;
+            font-size: 13px;
+        }
+        .suggestion-item:hover,
+        .suggestion-item.selected {
+            background: #4CAF50;
+            color: #000;
+        }
+        .help-section {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .help-title {
+            color: #4CAF50;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .help-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 12px;
+        }
+        .help-category {
+            margin-bottom: 8px;
+        }
+        .help-category strong {
+            color: #4CAF50;
+        }
+        .help-commands {
+            color: #ccc;
+            margin-left: 10px;
+        }
+        .status {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            font-size: 12px;
+            color: #aaa;
+            min-height: 20px;
+        }
+        .status.success {
+            color: #4CAF50;
+            border-color: #4CAF50;
+        }
+        .status.error {
+            color: #ff6b6b;
+            border-color: #ff6b6b;
+        }
+        .effects-counter {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 11px;
+            color: #4CAF50;
+            margin-top: 8px;
+            text-align: left;
+            min-height: 16px;
+        }
+        .effects-counter.scanning {
+            color: #ffa500;
+        }
+        .effects-counter.ready {
+            color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+        <div class="container">
+            <h1>Command Console <span style="color: #4CAF50; font-size: 14px;">v1.2</span></h1>
+            <p class="subtitle">Type commands and press Enter to execute</p>
+        
+        <div class="input-section">
+            <input type="text" id="command-input" placeholder="Enter command (e.g., mute, duplicate, Gaussian Blur)..." autocomplete="off">
+            <div class="suggestions" id="suggestions"></div>
+        </div>
+        
+        <div class="help-section">
+            <div class="help-title">Available Commands</div>
+            <div class="help-grid">
+                <div class="help-category">
+                    <strong>Layer Operations:</strong>
+                    <div class="help-commands">mute, unmute, solo, unsolo, duplicate, delete, hide, show</div>
+                </div>
+                <div class="help-category">
+                    <strong>Transform:</strong>
+                    <div class="help-commands">reset</div>
+                </div>
+                <div class="help-category">
+                    <strong>Create Elements:</strong>
+                    <div class="help-commands">null, adjustment, shape, camera, light</div>
+                </div>
+                <div class="help-category">
+                    <strong>Effects:</strong>
+                    <div class="help-commands">Any effect name (e.g., Gaussian Blur, Glow, Keylight)</div>
+                </div>
+                <div class="help-category">
+                    <strong>Special:</strong>
+                    <div class="help-commands">list effects (scans and shows all available effects)</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="status" id="status">Ready - Select layers and type commands</div>
+        <div class="effects-counter" id="effects-counter">Initializing effects...</div>
+    </div>
+    
+    <script src="js/lib/CSInterface.js"></script>
+    <script>
+        let csInterface = new CSInterface();
+        let selectedSuggestionIndex = -1;
+        let suggestions = [];
+        
+        // Command suggestions
+        const commandSuggestions = [
+            // Layer operations
+            "mute", "unmute", "solo", "unsolo", "duplicate", "delete", "hide", "show",
+            // Transform
+            "reset",
+            // Create elements
+            "null", "adjustment", "shape", "camera", "light",
+            // Special commands
+            "list effects",
+            // Common effects
+            "Gaussian Blur", "Glow", "Lumetri Color", "Curves", "Levels", "Hue/Saturation",
+            "Turbulent Displace", "Noise", "Sharpen", "Drop Shadow", "Fill", "Fast Box Blur",
+            "Invert", "Exposure", "Transform", "Color Correction", "Stylize", "Distort",
+            "Keylight", "Color Difference Key", "Linear Color Key", "Extract", "Inner/Outer Key"
+        ];
+        
+        function updateStatus(message, type = '') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = 'status ' + type;
+            
+            // Clear status after 3 seconds
+            setTimeout(() => {
+                status.textContent = 'Ready - Select layers and type commands';
+                status.className = 'status';
+            }, 3000);
+        }
+        
+        function updateEffectsCounter(message, type = 'scanning') {
+            const counter = document.getElementById('effects-counter');
+            counter.textContent = message;
+            counter.className = 'effects-counter ' + type;
+        }
+        
+        function filterSuggestions(query) {
+            suggestions = commandSuggestions.filter(cmd => 
+                cmd.toLowerCase().includes(query.toLowerCase())
+            ).slice(0, 10); // Limit to 10 suggestions
+            
+            displaySuggestions();
+            selectedSuggestionIndex = -1;
+        }
+        
+        function displaySuggestions() {
+            const suggestionsContainer = document.getElementById('suggestions');
+            
+            if (suggestions.length > 0) {
+                suggestionsContainer.innerHTML = '';
+                suggestions.forEach((suggestion, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'suggestion-item';
+                    div.textContent = suggestion;
+                    div.addEventListener('click', () => {
+                        executeCommand(suggestion);
+                    });
+                    suggestionsContainer.appendChild(div);
+                });
+                suggestionsContainer.style.display = 'block';
+            } else {
+                suggestionsContainer.style.display = 'none';
+            }
+        }
+        
+        function updateSuggestionSelection() {
+            const items = document.querySelectorAll('.suggestion-item');
+            items.forEach((item, index) => {
+                item.classList.toggle('selected', index === selectedSuggestionIndex);
+            });
+        }
+        
+        function executeCommand(command) {
+            if (!command || !command.trim()) {
+                updateStatus("No command entered", "error");
+                return;
+            }
+            
+            updateStatus("Executing: " + command);
+            
+            // Clear input and hide suggestions
+            document.getElementById('command-input').value = '';
+            document.getElementById('suggestions').style.display = 'none';
+            
+            // Execute the command
+            csInterface.evalScript('processCommand("' + escapeCommand(command) + '")', function(result) {
+                if (result === 'EvalScript error.') {
+                    updateStatus("Error: Script execution failed", "error");
+                } else if (result && result.indexOf('Error:') === 0) {
+                    updateStatus(result, "error");
+                } else {
+                    updateStatus(result, "success");
+                }
+            });
+        }
+        
+        function escapeCommand(command) {
+            return command.replace(/\\/g, '\\\\')
+                         .replace(/"/g, '\\"')
+                         .replace(/'/g, "\\'")
+                         .replace(/\n/g, '\\n')
+                         .replace(/\r/g, '\\r');
+        }
+        
+            // Test JSX communication
+            function testJSXCommunication() {
+                try {
+                    updateEffectsCounter("Testing JSX communication...", "scanning");
+                    
+                    csInterface.evalScript('testJSX()', function(result) {
+                        console.log("JSX Test Result:", result);
+                        
+                        if (result && result !== 'EvalScript error.' && result !== 'undefined') {
+                            updateEffectsCounter("JSX Test: " + result, "ready");
+                        } else {
+                            updateEffectsCounter("JSX Test: Failed - " + (result || "No response"), "scanning");
+                            // Try again after 1 second
+                            setTimeout(testJSXCommunication, 1000);
+                        }
+                    });
+                } catch (e) {
+                    console.error("JSX Test Error:", e);
+                    updateEffectsCounter("JSX Test Error: " + e.toString(), "scanning");
+                    // Try again after 1 second
+                    setTimeout(testJSXCommunication, 1000);
+                }
+            }
+        
+        // Check effects count and update counter
+        function checkEffectsCount() {
+            try {
+                csInterface.evalScript('getEffectsCount()', function(count) {
+                    if (count && count > 0) {
+                        updateEffectsCounter("Effects loaded: " + count, "ready");
+                        updateStatus("Ready to use!", "success");
+                    } else {
+                        updateEffectsCounter("JSX not responding...", "scanning");
+                        updateStatus("Initializing...", "");
+                        // Try again after a short delay
+                        setTimeout(checkEffectsCount, 2000);
+                    }
+                });
+            } catch (e) {
+                updateEffectsCounter("JSX Error: " + e.toString(), "scanning");
+                updateStatus("JSX communication failed", "error");
+            }
+        }
+        
+        // Setup event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const input = document.getElementById('command-input');
+            const suggestionsContainer = document.getElementById('suggestions');
+            
+            // Test JSX communication first
+            testJSXCommunication();
+            
+            // Check effects count on load
+            checkEffectsCount();
+            
+            // Input events
+            input.addEventListener('input', function() {
+                const query = this.value.trim();
+                if (query.length > 0) {
+                    filterSuggestions(query);
+                } else {
+                    suggestionsContainer.style.display = 'none';
+                }
+            });
+            
+            input.addEventListener('keydown', function(e) {
+                const suggestionsContainer = document.getElementById('suggestions');
+                
+                switch(e.key) {
+                    case 'Enter':
+                        e.preventDefault();
+                        if (selectedSuggestionIndex >= 0 && suggestions[selectedSuggestionIndex]) {
+                            executeCommand(suggestions[selectedSuggestionIndex]);
+                        } else {
+                            executeCommand(this.value);
+                        }
+                        break;
+                        
+                    case 'Escape':
+                        suggestionsContainer.style.display = 'none';
+                        this.blur();
+                        break;
+                        
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        if (suggestions.length > 0) {
+                            selectedSuggestionIndex = Math.min(selectedSuggestionIndex + 1, suggestions.length - 1);
+                            updateSuggestionSelection();
+                        }
+                        break;
+                        
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        if (suggestions.length > 0) {
+                            selectedSuggestionIndex = Math.max(selectedSuggestionIndex - 1, 0);
+                            updateSuggestionSelection();
+                        }
+                        break;
+                }
+            });
+            
+            input.addEventListener('focus', function() {
+                if (this.value.trim().length > 0) {
+                    filterSuggestions(this.value);
+                }
+            });
+            
+            input.addEventListener('blur', function() {
+                // Delay hiding suggestions to allow clicks
+                setTimeout(() => {
+                    document.getElementById('suggestions').style.display = 'none';
+                }, 200);
+            });
+            
+            // Focus input on load
+            input.focus();
+        });
+    </script>
+</body>
+</html>
+

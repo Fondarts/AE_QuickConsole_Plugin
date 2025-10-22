@@ -1,0 +1,219 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #2a2a2a;
+    color: #ffffff;
+    font-size: 12px;
+    overflow: hidden;
+}
+
+#main-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+}
+
+#header {
+    margin-bottom: 15px;
+    text-align: center;
+    border-bottom: 1px solid #444;
+    padding-bottom: 10px;
+}
+
+#header h1 {
+    font-size: 16px;
+    color: #4CAF50;
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    font-size: 10px;
+    color: #aaa;
+}
+
+#input-section {
+    margin-bottom: 15px;
+    position: relative;
+}
+
+#command-input {
+    width: 100%;
+    padding: 8px 12px;
+    background: #1a1a1a;
+    border: 1px solid #444;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 12px;
+    outline: none;
+}
+
+#command-input:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+}
+
+#suggestions-container {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #1a1a1a;
+    border: 1px solid #444;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+#suggestions-list {
+    list-style: none;
+}
+
+#suggestions-list li {
+    padding: 6px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #333;
+}
+
+#suggestions-list li:hover,
+#suggestions-list li.selected {
+    background: #4CAF50;
+    color: #000;
+}
+
+#quick-actions,
+#create-section,
+#blending-section {
+    margin-bottom: 15px;
+}
+
+#quick-actions h3,
+#create-section h3,
+#blending-section h3 {
+    font-size: 12px;
+    color: #4CAF50;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #444;
+    padding-bottom: 4px;
+}
+
+.action-grid,
+.create-grid,
+.blending-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 4px;
+}
+
+.action-btn,
+.create-btn,
+.blending-btn {
+    padding: 6px 8px;
+    background: #333;
+    border: 1px solid #555;
+    border-radius: 3px;
+    color: #fff;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.action-btn:hover,
+.create-btn:hover,
+.blending-btn:hover {
+    background: #4CAF50;
+    border-color: #4CAF50;
+    color: #000;
+}
+
+.action-btn:active,
+.create-btn:active,
+.blending-btn:active {
+    background: #45a049;
+    transform: scale(0.95);
+}
+
+.create-btn {
+    background: #2c5aa0;
+    border-color: #2c5aa0;
+}
+
+.create-btn:hover {
+    background: #4CAF50;
+    border-color: #4CAF50;
+}
+
+.blending-btn {
+    background: #8e24aa;
+    border-color: #8e24aa;
+}
+
+.blending-btn:hover {
+    background: #4CAF50;
+    border-color: #4CAF50;
+}
+
+#status-bar {
+    margin-top: auto;
+    padding: 8px;
+    background: #1a1a1a;
+    border: 1px solid #444;
+    border-radius: 3px;
+    font-size: 10px;
+    color: #aaa;
+}
+
+#status-text {
+    display: block;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #777;
+}
+
+/* Responsive adjustments */
+@media (max-height: 500px) {
+    #quick-actions,
+    #create-section,
+    #blending-section {
+        margin-bottom: 10px;
+    }
+    
+    .action-grid,
+    .create-grid,
+    .blending-grid {
+        grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+        gap: 3px;
+    }
+    
+    .action-btn,
+    .create-btn,
+    .blending-btn {
+        padding: 4px 6px;
+        font-size: 9px;
+    }
+}
+

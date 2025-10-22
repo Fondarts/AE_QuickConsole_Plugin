@@ -1,0 +1,4 @@
+# Debug mode enabled for development
+# This file enables debug mode for the CEP extension
+# Remove this file for production builds
+
