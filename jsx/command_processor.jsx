@@ -1,4 +1,4 @@
-// Simple Effect Scanner V18 - Only scans 2 specific folders
+// Simple Effect Scanner V21 - Only scans 2 specific folders
 var allEffects = [];
 var allEffectsWithPaths = [];
 
@@ -331,6 +331,104 @@ function processLayerCommand(command) {
         }
         
                 } catch (e) {
+        return "Error: " + e.toString();
+    } finally {
+        app.endUndoGroup();
+    }
+}
+
+// Process layer creation commands
+function processCreateCommand(command) {
+    try {
+        // Validate command parameter
+        if (!command || typeof command !== 'string') {
+            return "Error: Invalid command parameter.";
+        }
+        
+        var comp = app.project.activeItem;
+        if (!comp || !(comp instanceof CompItem)) {
+            return "Error: Please select a composition first.";
+        }
+        
+        // Parse command - handle trim safely
+        var trimmedCommand = command.replace(/^\s+|\s+$/g, ''); // Manual trim
+        if (trimmedCommand === '') {
+            return "Error: Empty command.";
+        }
+        
+        var parts = trimmedCommand.split(" ");
+        var action = parts[0].toLowerCase();
+        
+        app.beginUndoGroup("Create " + action.charAt(0).toUpperCase() + action.substring(1));
+        
+        if (action === "solid") {
+            var color = [1, 1, 1]; // Default white
+            var name = "Solid";
+            
+            if (parts.length >= 2) {
+                var colorName = parts[1].toLowerCase();
+                
+                // Define colors
+                var colors = {
+                    "red": [1, 0, 0],
+                    "blue": [0, 0, 1],
+                    "yellow": [1, 1, 0],
+                    "black": [0, 0, 0],
+                    "white": [1, 1, 1],
+                    "purple": [0.5, 0, 0.5]
+                };
+                
+                if (colors[colorName]) {
+                    color = colors[colorName];
+                    name = "Solid " + colorName.charAt(0).toUpperCase() + colorName.substring(1);
+                } else if (colorName.match(/^[0-9a-fA-F]{6}$/)) {
+                    // Hexadecimal color
+                    var hex = colorName;
+                    var r = parseInt(hex.substr(0, 2), 16) / 255;
+                    var g = parseInt(hex.substr(2, 2), 16) / 255;
+                    var b = parseInt(hex.substr(4, 2), 16) / 255;
+                    color = [r, g, b];
+                    name = "Solid #" + hex.toUpperCase();
+                } else {
+                    return "Error: Unknown color '" + colorName + "'. Use: red, blue, yellow, black, white, purple, or hex (e.g., 11B159)";
+                }
+            }
+            
+            // Create solid layer
+            var solid = comp.layers.addSolid(color, name, comp.width, comp.height, comp.pixelAspect);
+            return "Success: Created " + name + " layer";
+            
+        } else if (action === "text") {
+            // Create text layer
+            var textLayer = comp.layers.addText("Text");
+            return "Success: Created text layer";
+            
+        } else if (action === "light") {
+            // Create light layer
+            var light = comp.layers.addLight("Light", [0, 0]);
+            return "Success: Created light layer";
+            
+        } else if (action === "camera") {
+            // Create camera layer
+            var camera = comp.layers.addCamera("Camera", [0, 0]);
+            return "Success: Created camera layer";
+            
+        } else if (action === "null") {
+            // Create null layer
+            var nullLayer = comp.layers.addNull();
+            return "Success: Created null layer";
+            
+        } else if (action === "adjustment" || action === "adjustmentlayer") {
+            // Create adjustment layer
+            var adjLayer = comp.layers.addSolid([1, 1, 1], "Adjustment Layer", comp.width, comp.height, comp.pixelAspect);
+            adjLayer.adjustmentLayer = true;
+            return "Success: Created adjustment layer";
+            
+        } else {
+            return "Error: Unknown create command '" + action + "'. Use: solid, text, light, camera, null, or adjustment";
+        }
+        
+    } catch (e) {
         return "Error: " + e.toString();
     } finally {
         app.endUndoGroup();
