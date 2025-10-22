@@ -1,4 +1,4 @@
-// Simple Effect Scanner V21 - Only scans 2 specific folders
+// Simple Effect Scanner V26 - Only scans 2 specific folders
 var allEffects = [];
 var allEffectsWithPaths = [];
 
@@ -89,6 +89,9 @@ function scanEffects() {
     // Post-processing: Fix CC effect names
     fixCCEffectNames();
     
+    // Add layer creation commands to the list
+    addLayerCommands();
+    
     return allEffects;
 }
 
@@ -110,9 +113,23 @@ function getEffectsList() {
     return allEffects.join("\n");
 }
 
-// Apply effect to active layer
+// Apply effect to active layer or execute command
 function applyEffect(effectName) {
     try {
+        // Check if this is a layer creation command
+        var parts = effectName.split(" ");
+        var action = parts[0].toLowerCase();
+        
+        if (action === "solid" || action === "text" || action === "light" || 
+            action === "camera" || action === "null" || action === "adjustment") {
+            // This is a layer creation command, use processCreateCommand
+            return processCreateCommand(effectName);
+        } else if (action === "select" || action === "unselect" || action === "solo" || action === "unsolo") {
+            // This is a layer selection command that needs parameters
+            return "Enter layer numbers (e.g., 1,2,4) or press Enter for selected layers";
+        }
+        
+        // This is a regular effect, apply to layer
         var comp = app.project.activeItem;
         if (!comp || !(comp instanceof CompItem)) {
             return "Error: Please select a composition first.";
@@ -662,6 +679,48 @@ function fixCCEffectNames() {
             effect.name = audioEffectsMap[effect.name];
         }
     }
+}
+
+// Add layer creation commands to the effects list
+function addLayerCommands() {
+    var layerCommands = [
+        "solid red",
+        "solid blue", 
+        "solid yellow",
+        "solid black",
+        "solid white",
+        "solid purple",
+        "solid green",
+        "solid orange",
+        "solid pink",
+        "solid cyan",
+        "solid magenta",
+        "solid gray",
+        "text",
+        "light",
+        "camera",
+        "null",
+        "adjustment layer",
+        "select",
+        "solo",
+        "unselect",
+        "unsolo"
+    ];
+    
+    // Add commands to the effects list
+    for (var i = 0; i < layerCommands.length; i++) {
+        allEffects.push(layerCommands[i]);
+        allEffectsWithPaths.push({
+            name: layerCommands[i],
+            path: "COMMAND: " + layerCommands[i]
+        });
+    }
+    
+    // Re-sort the list
+    allEffects.sort();
+    allEffectsWithPaths.sort(function(a, b) {
+        return a.name.localeCompare(b.name);
+    });
 }
 
 // Initialize scanning

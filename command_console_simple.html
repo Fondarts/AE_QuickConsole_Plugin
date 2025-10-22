@@ -132,10 +132,10 @@
 </head>
 <body>
     <div class="container">
-        <h1>Simple Effect Scanner <span style="color: #4CAF50; font-size: 14px;">V21</span></h1>
+        <h1>Simple Effect Scanner <span style="color: #4CAF50; font-size: 14px;">V26</span></h1>
         
         <div class="search-section">
-            <input type="text" id="search-input" placeholder="Search effects..." autocomplete="off">
+            <input type="text" id="search-input" placeholder="Search effects and commands..." autocomplete="off">
         </div>
         
         <div class="command-section">
@@ -158,6 +158,7 @@
     <script>
         let csInterface = new CSInterface();
         let allEffects = [];
+        let pendingCommand = null;
         
         function updateStatus(message) {
             document.getElementById('status').textContent = message;
@@ -202,6 +203,23 @@
             var filteredEffects = allEffects.filter(function(effect) {
                 return effect.toLowerCase().indexOf(searchTerm) !== -1;
             });
+            
+            // Sort to prioritize exact matches at the beginning
+            filteredEffects.sort(function(a, b) {
+                var aLower = a.toLowerCase();
+                var bLower = b.toLowerCase();
+                
+                // Check if they start with the search term
+                var aStartsWith = aLower.indexOf(searchTerm) === 0;
+                var bStartsWith = bLower.indexOf(searchTerm) === 0;
+                
+                if (aStartsWith && !bStartsWith) return -1;
+                if (!aStartsWith && bStartsWith) return 1;
+                
+                // If both start with search term or neither does, sort alphabetically
+                return a.localeCompare(b);
+            });
+            
             displayEffects(filteredEffects);
             updateStatus("Showing " + filteredEffects.length + " of " + allEffects.length + " effects");
         }
@@ -212,11 +230,17 @@
             try {
                 csInterface.evalScript('applyEffect("' + effectName.replace(/"/g, '\\"') + '")', function(result) {
                     if (result && result !== 'EvalScript error.') {
-                        updateStatus(result);
-                        // Clear status after 3 seconds
-                        setTimeout(function() {
-                            updateStatus("Found " + document.querySelectorAll('.effect-item').length + " effects - Click any effect to apply it");
-                        }, 3000);
+                        // Check if this is a command that needs parameters
+                        if (result.indexOf("Enter layer numbers") !== -1) {
+                            pendingCommand = effectName;
+                            updateStatus("Enter layer numbers (e.g., 1,2,4) or press Enter for selected layers");
+                        } else {
+                            updateStatus(result);
+                            // Clear status after 3 seconds
+                            setTimeout(function() {
+                                updateStatus("Found " + document.querySelectorAll('.effect-item').length + " effects - Click any effect to apply it");
+                            }, 3000);
+                        }
                     } else {
                         updateStatus("Error applying effect: " + result);
                     }
@@ -239,6 +263,52 @@
                         }, 3000);
                     } else {
                         updateStatus("Error exporting effects: " + result);
+                    }
+                });
+            } catch (e) {
+                updateStatus("Error: " + e.toString());
+            }
+        }
+        
+        function applyFirstVisibleEffect() {
+            var searchInput = document.getElementById('search-input');
+            var searchValue = searchInput.value.trim();
+            
+            // If we have a pending command, execute it with the current input
+            if (pendingCommand) {
+                var fullCommand = pendingCommand + " " + searchValue;
+                executePendingCommand(fullCommand);
+                pendingCommand = null;
+                searchInput.value = '';
+                return;
+            }
+            
+            // Normal flow - apply first visible effect
+            var visibleEffects = document.querySelectorAll('.effect-item');
+            if (visibleEffects.length > 0) {
+                var firstEffect = visibleEffects[0];
+                var effectName = firstEffect.textContent.replace(/^\d+\.\s*/, ''); // Remove number prefix
+                applyEffect(effectName);
+            } else {
+                updateStatus("No effects found to apply");
+            }
+        }
+        
+        function executePendingCommand(fullCommand) {
+            updateStatus("Executing command: " + fullCommand + "...");
+            
+            try {
+                var escapedCommand = fullCommand.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/'/g, "\\'");
+                var jsxCall = 'processLayerCommand("' + escapedCommand + '")';
+                
+                csInterface.evalScript(jsxCall, function(result) {
+                    if (result && result !== 'EvalScript error.') {
+                        updateStatus(result);
+                        setTimeout(function() {
+                            updateStatus("Found " + document.querySelectorAll('.effect-item').length + " effects - Click any effect to apply it");
+                        }, 3000);
+                    } else {
+                        updateStatus("Error executing command: " + result);
                     }
                 });
             } catch (e) {
@@ -295,6 +365,13 @@
             
             // Add event listener for search input
             document.getElementById('search-input').addEventListener('input', filterEffects);
+            
+            // Add event listener for Enter key on search input
+            document.getElementById('search-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    applyFirstVisibleEffect();
+                }
+            });
             
             // Add event listener for export button
             document.getElementById('export-btn').addEventListener('click', exportEffects);
