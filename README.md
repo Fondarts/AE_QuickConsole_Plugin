@@ -1,68 +1,57 @@
-# AE Quick Console Plugin
+# Simple Effect Scanner V02
 
-## Versión Final - Funcional
+Un plugin para After Effects que escanea y permite aplicar efectos de manera rápida y eficiente.
 
-Este es el plugin de consola de comandos para After Effects que funciona correctamente.
+## Características
 
-## Archivos Principales
-
-- **`command_console.html`** - Interfaz principal del plugin
-- **`jsx/command_processor.jsx`** - Procesador de comandos
-- **`CSXS/manifest.xml`** - Configuración del plugin
-- **`css/style.css`** - Estilos de la interfaz
-- **`js/lib/CSInterface.js`** - Librería de comunicación con After Effects
-
-## Comandos Disponibles
-
-### Crear Elementos (no requieren capas seleccionadas):
-- `null` - Crear capa null
-- `adjustment` - Crear capa de ajuste
-- `shape` - Crear capa de forma
-- `camera` - Crear cámara
-- `light` - Crear luz
-
-### Operaciones de Capas (requieren capas seleccionadas):
-- `mute` - Silenciar capas
-- `unmute` - Activar capas
-- `solo` - Solo capas
-- `unsolo` - Unsolo capas
-- `duplicate` - Duplicar capas
-- `delete` - Eliminar capas
-- `hide` - Ocultar capas
-- `show` - Mostrar capas
-- `reset` - Resetear transformaciones
-
-### Efectos:
-- Cualquier nombre de efecto de After Effects (ej: `Gaussian Blur`, `Glow`, `Keylight`, etc.)
-- **Búsqueda inteligente**: Si no encuentra el efecto exacto, busca efectos similares
-- **Comando especial**: `list effects` - Muestra todos los efectos disponibles
-
-### Comandos Especiales:
-- **`list effects`** - Escanea y muestra todos los efectos instalados en After Effects
+- **Escaneo Automático**: Escanea automáticamente las carpetas de efectos de After Effects
+- **Búsqueda en Tiempo Real**: Filtra efectos mientras escribes
+- **Click para Aplicar**: Haz click en cualquier efecto para aplicarlo al layer activo
+- **Exportar Lista**: Exporta la lista completa de efectos con paths a un archivo TXT
+- **Interfaz Simple**: Interfaz limpia y fácil de usar
 
 ## Instalación
 
-1. Copia la carpeta `AE_QuickConsole_Plugin` a `%APPDATA%\Adobe\CEP\extensions\`
-2. Ejecuta `enable_unsigned_extensions.reg` (en la carpeta old_code)
-3. Reinicia After Effects
+1. Ejecuta `V02_INSTALL.bat` como administrador
+2. Cierra After Effects completamente
+3. Abre After Effects
 4. Ve a `Window > Extensions > Command Console`
 
-## Carpeta old_code
+## Uso
 
-Contiene todos los archivos de versiones anteriores, scripts de instalación, y código que no funcionaba. Se mantiene como respaldo.
+1. **Buscar Efectos**: Escribe en la barra de búsqueda para filtrar efectos
+2. **Aplicar Efectos**: Haz click en cualquier efecto de la lista para aplicarlo
+3. **Exportar Lista**: Haz click en "Export Effects List" para guardar la lista completa
 
-## Características Nuevas
+## Carpetas Escaneadas
 
-🔍 **ESCANEO AUTOMÁTICO DE EFECTOS**
-- Detecta automáticamente todos los efectos instalados
-- Búsqueda inteligente por nombre parcial
-- Sugerencias de efectos similares si no encuentra el exacto
-- Comando `list effects` para ver todos los efectos disponibles
+- `C:\Program Files\Adobe\Adobe After Effects 2025\Support Files\Plug-ins\`
+- `C:\Program Files\Adobe\Common\Plug-ins\7.0\MediaCore\`
 
-## Estado
+## Carpetas Excluidas
 
-✅ **FUNCIONANDO CORRECTAMENTE**
-- Plugin básico sin configuraciones
-- Comandos simples y efectivos
-- Interfaz limpia y funcional
-- **NUEVO**: Escaneo automático de todos los efectos instalados
+- `Keyframe` - Efectos de keyframe del sistema
+- `Extensions` - Extensiones del sistema
+- `Format` - Formatos de archivo del sistema
+
+## Requisitos
+
+- Adobe After Effects 2020 o superior
+- Windows 10/11
+- Extensiones no firmadas habilitadas
+
+## Versiones
+
+- **V02**: Versión estable con todas las funcionalidades
+- **V01**: Versión anterior (archivada en `old_code/`)
+
+## Desarrollo
+
+El plugin está desarrollado usando:
+- HTML/CSS/JavaScript para la interfaz
+- ExtendScript (JSX) para la comunicación con After Effects
+- CEP (Common Extensibility Platform) para la integración
+
+## Licencia
+
+Este proyecto es de código abierto y está disponible bajo la licencia MIT.
