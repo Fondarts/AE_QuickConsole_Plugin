@@ -1,4 +1,4 @@
-// Simple Effect Scanner V02 - Only scans 2 specific folders
+// Simple Effect Scanner V03 - Only scans 2 specific folders
 var allEffects = [];
 var allEffectsWithPaths = [];
 
@@ -84,6 +84,9 @@ function scanEffects() {
     
     allEffects = uniqueEffects.sort();
     allEffectsWithPaths = uniqueEffectsWithPaths;
+    
+    // Post-processing: Fix CC effect names
+    fixCCEffectNames();
     
     return allEffects;
 }
@@ -203,6 +206,85 @@ function exportEffectsList() {
         
     } catch (e) {
         return "Error exporting effects: " + e.toString();
+    }
+}
+
+// Function to fix CC effect names after scanning
+function fixCCEffectNames() {
+    // Known CC effects that need "CC " prefix
+    var ccEffectsMap = {
+        "Composite": "CC Composite",
+        "Bubbles": "CC Bubbles", 
+        "Ball Action": "CC Ball Action",
+        "Bend It": "CC Bend It",
+        "Bender": "CC Bender",
+        "Blobbylize": "CC Blobbylize",
+        "Block Load": "CC Block Load",
+        "Burn Film": "CC Burn Film",
+        "Color Neutralizer": "CC Color Neutralizer",
+        "Color Offset": "CC Color Offset",
+        "Cylinder": "CC Cylinder",
+        "Environment": "CC Environment",
+        "Flo Motion": "CC Flo Motion",
+        "Force Motion Blur": "CC Force Motion Blur",
+        "Glass": "CC Glass",
+        "Griddler": "CC Griddler",
+        "HexTile": "CC HexTile",
+        "Histogram": "CC Histogram",
+        "Image Wipe": "CC Image Wipe",
+        "Kaleida": "CC Kaleida",
+        "Lens": "CC Lens",
+        "Light Burst 2.5": "CC Light Burst 2.5",
+        "Light Rays": "CC Light Rays",
+        "Light Sweep": "CC Light Sweep",
+        "Page Turn": "CC Page Turn",
+        "Particle Systems II": "CC Particle Systems II",
+        "Particle World": "CC Particle World",
+        "Pixel Polly": "CC Pixel Polly",
+        "Power Pin": "CC Power Pin",
+        "Radial Blur": "CC Radial Blur",
+        "Radial Fast Blur": "CC Radial Fast Blur",
+        "Radial ScaleWipe": "CC Radial ScaleWipe",
+        "RepeTile": "CC RepeTile",
+        "Ripple Pulse": "CC Ripple Pulse",
+        "Scale Wipe": "CC Scale Wipe",
+        "Scatterize": "CC Scatterize",
+        "Simple Wire Removal": "CC Simple Wire Removal",
+        "Slant": "CC Slant",
+        "Smear": "CC Smear",
+        "Sphere": "CC Sphere",
+        "Split": "CC Split",
+        "Split2": "CC Split2",
+        "Spotlight": "CC Spotlight",
+        "Star Burst": "CC Star Burst",
+        "Threshold": "CC Threshold",
+        "Threshold RGB": "CC Threshold RGB",
+        "Threads": "CC Threads",
+        "Time Blend": "CC Time Blend",
+        "Time Blend FX": "CC Time Blend FX",
+        "Toner": "CC Toner",
+        "Twister": "CC Twister",
+        "Vector Blur": "CC Vector Blur",
+        "Warpo": "CC Warpo",
+        "Wave Warp": "CC Wave Warp",
+        "Wide Time": "CC Wide Time",
+        "Wireframe": "CC Wireframe"
+    };
+    
+    // Update allEffects array
+    for (var i = 0; i < allEffects.length; i++) {
+        var effectName = allEffects[i];
+        if (ccEffectsMap[effectName]) {
+            allEffects[i] = ccEffectsMap[effectName];
+        }
+    }
+    
+    // Update allEffectsWithPaths array
+    for (var j = 0; j < allEffectsWithPaths.length; j++) {
+        var effect = allEffectsWithPaths[j];
+        if (ccEffectsMap[effect.name]) {
+            effect.name = ccEffectsMap[effect.name];
+        }
     }
 }
 
