@@ -1,4 +1,4 @@
-// Simple Effect Scanner V06 - Only scans 2 specific folders
+// Simple Effect Scanner V11 - Only scans 2 specific folders
 var allEffects = [];
 var allEffectsWithPaths = [];
 
@@ -216,7 +216,9 @@ function fixCCEffectNames() {
     var ccEffectsMap = {
         "Composite": "CC Composite",
         "Bubbles": "CC Bubbles", 
+        "BallAction": "CC Ball Action",
         "Ball Action": "CC Ball Action",
+        "BendIt": "CC Bend It",
         "Bend It": "CC Bend It",
         "Bender": "CC Bender",
         "Blobbylize": "CC Blobbylize",
@@ -277,6 +279,9 @@ function fixCCEffectNames() {
         "3DGlasses": "3D Glasses",
         "3DCameraTracker": "3D Camera Tracker",
         "3DGlasses": "3D Glasses",
+        "AddGrain": "Add Grain",
+        "ApplyColorLUT": "Apply Color Lut",
+        "AuxChannelExtract": "3D Channel Extract",
         "AudioSpectrum": "Audio Spectrum",
         "AudioWaveform": "Audio Waveform",
         "AutoColor": "Auto Color",
@@ -284,6 +289,8 @@ function fixCCEffectNames() {
         "AutoLevels": "Auto Levels",
         "BevelAlpha": "Bevel Alpha",
         "BevelEdges": "Bevel Edges",
+        "BezWarp New": "Bezier Warp",
+        "Bilateral": "Bilateral Blur",
         "BilateralBlur": "Bilateral Blur",
         "BoxBlur": "Box Blur",
         "BrightnessContrast": "Brightness & Contrast",
