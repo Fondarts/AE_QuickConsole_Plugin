@@ -1,4 +1,4 @@
-// Simple Effect Scanner V05 - Only scans 2 specific folders
+// Simple Effect Scanner V06 - Only scans 2 specific folders
 var allEffects = [];
 var allEffectsWithPaths = [];
 
@@ -205,7 +205,7 @@ function exportEffectsList() {
             return "Error: Could not create export file.";
         }
         
-    } catch (e) {
+                } catch (e) {
         return "Error exporting effects: " + e.toString();
     }
 }
@@ -345,6 +345,22 @@ function fixCCEffectNames() {
         "Wiggler": "Wiggler"
     };
     
+    // Audio effects mapping (based on After Effects Plugin Match Names)
+    var audioEffectsMap = {
+        "Aud BT": "Bass & Treble",
+        "Aud Delay": "Delay", 
+        "Aud Flange": "Flange & Chorus",
+        "Aud HiLo": "High-Low Pass",
+        "Aud Mixer": "Stereo Mixer",
+        "Aud Modulator": "Modulator",
+        "Aud ParamEQ": "Parametric EQ",
+        "Aud Reverb": "Reverb",
+        "Aud Reverse": "Backwards",
+        "Aud Tone": "Tone",
+        "AudSpect": "Audio Spectrum",
+        "AudWave": "Audio Waveform"
+    };
+    
     // Update allEffects array
     for (var i = 0; i < allEffects.length; i++) {
         var effectName = allEffects[i];
@@ -352,6 +368,8 @@ function fixCCEffectNames() {
             allEffects[i] = ccEffectsMap[effectName];
         } else if (additionalEffectsMap[effectName]) {
             allEffects[i] = additionalEffectsMap[effectName];
+        } else if (audioEffectsMap[effectName]) {
+            allEffects[i] = audioEffectsMap[effectName];
         }
     }
     
@@ -362,6 +380,8 @@ function fixCCEffectNames() {
             effect.name = ccEffectsMap[effect.name];
         } else if (additionalEffectsMap[effect.name]) {
             effect.name = additionalEffectsMap[effect.name];
+        } else if (audioEffectsMap[effect.name]) {
+            effect.name = audioEffectsMap[effect.name];
         }
     }
 }
