@@ -157,7 +157,7 @@
         <div class="header">
             <div class="header-title">
                 Command Console
-                <span class="version-badge">V62</span>
+                <span class="version-badge">V63</span>
             </div>
             <div class="config-container">
                 <button class="config-button" id="config-btn">⚙️ Config</button>
@@ -175,7 +175,7 @@
         <div class="status" id="status">Loading...</div>
         
         <div class="effects-list" id="effects-list">
-            <div>Scanning effects...</div>
+            <div>Start typing to search effects and commands...</div>
         </div>
         
     </div>
@@ -196,13 +196,12 @@
                     if (result && result !== 'EvalScript error.') {
                         if (result === "No effects found") {
                             allEffects = [];
-                            displayEffects([]);
                         } else {
                             allEffects = result.split('\n');
-                            // Call filterEffects to display all effects initially
-                            filterEffects();
                         }
-                        updateStatus("Found " + allEffects.length + " effects - Click any effect to apply it");
+                        // Don't display effects initially - only show when user types
+                        displayEffects([]);
+                        updateStatus("Found " + allEffects.length + " effects - Start typing to search");
                     } else {
                         updateStatus("Error loading effects: " + result);
                     }
