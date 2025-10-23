@@ -1,4 +1,4 @@
-// Simple Effect Scanner V42 - Only scans 2 specific folders
+// Simple Effect Scanner V43 - Only scans 2 specific folders
 var allEffects = [];
 var allEffectsWithPaths = [];
 
@@ -746,13 +746,13 @@ function processLayerCommand(command) {
             
         } else if (action === "select" && parts[1] === "all") {
             for (var sa = 1; sa <= layers.length; sa++) {
-                layers[sa].selected = true;
+                layers[sa - 1].selected = true; // Convert 1-based to 0-based indexing
             }
             return "Success: Selected all " + layers.length + " layers";
             
         } else if (action === "deselect" && parts[1] === "all") {
             for (var da = 1; da <= layers.length; da++) {
-                layers[da].selected = false;
+                layers[da - 1].selected = false; // Convert 1-based to 0-based indexing
             }
             return "Success: Deselected all layers";
             
