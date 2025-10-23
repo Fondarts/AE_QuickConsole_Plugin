@@ -1,4 +1,4 @@
-// Simple Effect Scanner V53 - Only scans 2 specific folders
+// Simple Effect Scanner V54 - Only scans 2 specific folders
 var allEffects = [];
 var allEffectsWithPaths = [];
 
@@ -975,8 +975,11 @@ function processLayerCommand(command) {
                 var fittedCount = 0;
                 for (var fc = 0; fc < selectedLayers.length; fc++) {
                     var layer = selectedLayers[fc];
-                    var scale = layer.property("Transform").property("Scale");
-                    if (scale) {
+                    var transform = layer.property("Transform");
+                    var scale = transform.property("Scale");
+                    var position = transform.property("Position");
+                    
+                    if (scale && position) {
                         // Get composition and layer dimensions
                         var compWidth = comp.width;
                         var compHeight = comp.height;
@@ -988,11 +991,18 @@ function processLayerCommand(command) {
                         var scaleY = (compHeight / layerHeight) * 100;
                         var uniformScale = Math.min(scaleX, scaleY);
                         
+                        // Set scale
                         scale.setValue([uniformScale, uniformScale]);
+                        
+                        // Center layer in composition
+                        var centerX = compWidth / 2;
+                        var centerY = compHeight / 2;
+                        position.setValue([centerX, centerY]);
+                        
                         fittedCount++;
                     }
                 }
-                return "Success: Fitted " + fittedCount + " layers to composition";
+                return "Success: Fitted and centered " + fittedCount + " layers to composition";
             } catch (e) {
                 return "Error: Could not fit layers to composition. " + e.toString();
             }
