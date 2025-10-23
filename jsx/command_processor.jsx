@@ -1,4 +1,4 @@
-// Simple Effect Scanner V47 - Only scans 2 specific folders
+// Simple Effect Scanner V48 - Only scans 2 specific folders
 var allEffects = [];
 var allEffectsWithPaths = [];
 
@@ -861,8 +861,28 @@ function processLayerCommand(command) {
             
             return "Success: Set opacity to " + opacityValue + "% for " + opacityCount + " layers";
             
+        } else if (action === "precompose") {
+            var selectedLayers = comp.selectedLayers;
+            if (!selectedLayers || selectedLayers.length === 0) {
+                return "Error: No layers selected. Please select layers to precompose.";
+            }
+            
+            // Get the name for the new composition
+            var compName = "Pre-comp " + (new Date().getTime());
+            if (parts.length >= 2) {
+                compName = parts.slice(1).join(" "); // Join all parts after "precompose"
+            }
+            
+            try {
+                // Precompose selected layers
+                var newComp = comp.layers.precompose(selectedLayers, compName);
+                return "Success: Precomposed " + selectedLayers.length + " layers into '" + compName + "'";
+            } catch (e) {
+                return "Error: Could not precompose layers. " + e.toString();
+            }
+            
         } else {
-            return "Error: Unknown command '" + action + "'. Use: select, unselect, solo, unsolo, hide, show, mute, unmute, audio, lock, unlock, shy, unshy, motion blur, 3d layer, parent to, track matte, unparent, untrack matte, select all, deselect all, label, scale, opacity";
+            return "Error: Unknown command '" + action + "'. Use: select, unselect, solo, unsolo, hide, show, mute, unmute, audio, lock, unlock, shy, unshy, motion blur, 3d layer, parent to, track matte, unparent, untrack matte, select all, deselect all, label, scale, opacity, precompose";
         }
         
                 } catch (e) {
@@ -1258,7 +1278,8 @@ function addLayerCommands() {
         "label sandstone",
         "label dark green",
         "scale",
-        "opacity"
+        "opacity",
+        "precompose"
     ];
     
     // Add commands to the effects list
