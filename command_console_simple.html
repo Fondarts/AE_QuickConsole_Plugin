@@ -15,11 +15,89 @@
             max-width: 800px;
             margin: 0 auto;
         }
-        h1 {
-            color: #4CAF50;
-            text-align: center;
-            font-size: 20px;
-            margin-bottom: 15px;
+        .header {
+            background: #3a3a3a;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #4a4a4a;
+        }
+        
+        .header-title {
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .version-badge {
+            background: #4CAF50;
+            color: #000000;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .config-button {
+            background: #555;
+            border: none;
+            color: #ffffff;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+        
+        .config-button:hover {
+            background: #666;
+        }
+        
+        .config-container {
+            position: relative;
+        }
+        
+        .config-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 8px 0;
+            min-width: 180px;
+            display: none;
+            z-index: 1000;
+        }
+        
+        .config-menu.show {
+            display: block;
+        }
+        
+        .config-menu-item {
+            padding: 8px 16px;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+        
+        .config-menu-item:hover {
+            background: #3a3a3a;
+        }
+        
+        .config-menu-item:first-child {
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+        }
+        
+        .config-menu-item:last-child {
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
         }
         .search-section {
             margin: 8px 0;
@@ -72,31 +150,22 @@
             border-bottom: none;
         }
         
-        .export-section {
-            margin: 10px 0;
-            text-align: center;
-        }
-        .export-button {
-            background: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .export-button:hover {
-            background: #45a049;
-        }
-        .export-button:active {
-            background: #3d8b40;
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Simple Effect Scanner <span style="color: #4CAF50; font-size: 14px;">V59</span></h1>
+        <div class="header">
+            <div class="header-title">
+                Command Console
+                <span class="version-badge">V60</span>
+            </div>
+            <div class="config-container">
+                <button class="config-button" id="config-btn">⚙️ Config</button>
+                <div class="config-menu" id="config-menu">
+                    <div class="config-menu-item" id="export-menu-item">📤 Export Effects List</div>
+                </div>
+            </div>
+        </div>
         
         <div class="search-section">
             <input type="text" id="search-input" placeholder="Search effects and commands..." autocomplete="off">
@@ -109,9 +178,6 @@
             <div>Scanning effects...</div>
         </div>
         
-        <div class="export-section">
-            <button id="export-btn" class="export-button">Export Effects List</button>
-        </div>
     </div>
     
     <script src="js/lib/CSInterface.js"></script>
@@ -287,6 +353,17 @@
         }
         
         
+        // Configuration menu functionality
+        function toggleConfigMenu() {
+            var menu = document.getElementById('config-menu');
+            menu.classList.toggle('show');
+        }
+        
+        function closeConfigMenu() {
+            var menu = document.getElementById('config-menu');
+            menu.classList.remove('show');
+        }
+        
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             updateStatus("Scanning effects...");
@@ -301,8 +378,24 @@
                 }
             });
             
-            // Add event listener for export button
-            document.getElementById('export-btn').addEventListener('click', exportEffects);
+            // Add event listener for config button
+            document.getElementById('config-btn').addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleConfigMenu();
+            });
+            
+            // Add event listener for export menu item
+            document.getElementById('export-menu-item').addEventListener('click', function() {
+                exportEffects();
+                closeConfigMenu();
+            });
+            
+            // Close menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.config-container')) {
+                    closeConfigMenu();
+                }
+            });
             
             // Wait a moment for JSX to initialize, then load effects
             setTimeout(function() {

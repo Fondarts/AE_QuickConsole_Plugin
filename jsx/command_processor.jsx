@@ -1,4 +1,4 @@
-// Simple Effect Scanner V59 - Only scans 2 specific folders
+// Simple Effect Scanner V60 - Only scans 2 specific folders
 var allEffects = [];
 var allEffectsWithPaths = [];
 
