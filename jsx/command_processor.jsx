@@ -1,4 +1,4 @@
-// Simple Effect Scanner V51 - Only scans 2 specific folders
+// Simple Effect Scanner V52 - Only scans 2 specific folders
 var allEffects = [];
 var allEffectsWithPaths = [];
 
@@ -129,7 +129,8 @@ function applyEffect(effectName) {
                    action === "audio" || action === "lock" || action === "unlock" || action === "shy" ||
                    action === "unshy" || effectName === "motion blur" || effectName === "3d layer" ||
                    effectName === "parent to" || effectName === "track matte" || action === "scale" || action === "opacity" ||
-                   action === "precompose" || (parts.length >= 2 && parts[0].toLowerCase() === "label")) {
+                   action === "precompose" || action === "duplicate" || effectName === "center anchor" ||
+                   effectName === "fit to comp" || effectName === "reset transform" || (parts.length >= 2 && parts[0].toLowerCase() === "label")) {
             // This is a layer property command that needs parameters
             if (effectName === "parent to") {
                 return "Enter parent layer number (e.g., 5) and press Enter";
@@ -150,6 +151,18 @@ function applyEffect(effectName) {
                 return processLayerCommand(effectName);
             } else if (action === "precompose") {
                 // Handle precompose directly in applyEffect
+                return processLayerCommand(effectName);
+            } else if (action === "duplicate") {
+                // Handle duplicate directly in applyEffect
+                return processLayerCommand(effectName);
+            } else if (effectName === "center anchor") {
+                // Handle center anchor directly in applyEffect
+                return processLayerCommand(effectName);
+            } else if (effectName === "fit to comp") {
+                // Handle fit to comp directly in applyEffect
+                return processLayerCommand(effectName);
+            } else if (effectName === "reset transform") {
+                // Handle reset transform directly in applyEffect
                 return processLayerCommand(effectName);
             }
             return "Enter layer numbers (e.g., 1,2,4) or press Enter for selected layers";
@@ -890,8 +903,126 @@ function processLayerCommand(command) {
                 return "Error: Could not precompose layers. " + e.toString();
             }
             
+        } else if (action === "duplicate") {
+            var selectedLayers = comp.selectedLayers;
+            if (!selectedLayers || selectedLayers.length === 0) {
+                return "Error: No layers selected. Please select layers to duplicate.";
+            }
+            
+            try {
+                var duplicatedCount = 0;
+                for (var d = 0; d < selectedLayers.length; d++) {
+                    var layer = selectedLayers[d];
+                    layer.duplicate();
+                    duplicatedCount++;
+                }
+                return "Success: Duplicated " + duplicatedCount + " layers";
+            } catch (e) {
+                return "Error: Could not duplicate layers. " + e.toString();
+            }
+            
+        } else if (action === "center" && parts[1] === "anchor") {
+            var selectedLayers = comp.selectedLayers;
+            if (!selectedLayers || selectedLayers.length === 0) {
+                return "Error: No layers selected. Please select layers to center anchor.";
+            }
+            
+            try {
+                var centeredCount = 0;
+                for (var ca = 0; ca < selectedLayers.length; ca++) {
+                    var layer = selectedLayers[ca];
+                    var anchorPoint = layer.property("Transform").property("Anchor Point");
+                    if (anchorPoint) {
+                        // Get layer dimensions
+                        var width = layer.width;
+                        var height = layer.height;
+                        // Center anchor point
+                        anchorPoint.setValue([width / 2, height / 2]);
+                        centeredCount++;
+                    }
+                }
+                return "Success: Centered anchor point for " + centeredCount + " layers";
+            } catch (e) {
+                return "Error: Could not center anchor point. " + e.toString();
+            }
+            
+        } else if (action === "fit" && parts[1] === "to" && parts[2] === "comp") {
+            var selectedLayers = comp.selectedLayers;
+            if (!selectedLayers || selectedLayers.length === 0) {
+                return "Error: No layers selected. Please select layers to fit to comp.";
+            }
+            
+            try {
+                var fittedCount = 0;
+                for (var fc = 0; fc < selectedLayers.length; fc++) {
+                    var layer = selectedLayers[fc];
+                    var scale = layer.property("Transform").property("Scale");
+                    if (scale) {
+                        // Get composition and layer dimensions
+                        var compWidth = comp.width;
+                        var compHeight = comp.height;
+                        var layerWidth = layer.width;
+                        var layerHeight = layer.height;
+                        
+                        // Calculate scale to fit composition
+                        var scaleX = (compWidth / layerWidth) * 100;
+                        var scaleY = (compHeight / layerHeight) * 100;
+                        var uniformScale = Math.min(scaleX, scaleY);
+                        
+                        scale.setValue([uniformScale, uniformScale]);
+                        fittedCount++;
+                    }
+                }
+                return "Success: Fitted " + fittedCount + " layers to composition";
+            } catch (e) {
+                return "Error: Could not fit layers to composition. " + e.toString();
+            }
+            
+        } else if (action === "reset" && parts[1] === "transform") {
+            var selectedLayers = comp.selectedLayers;
+            if (!selectedLayers || selectedLayers.length === 0) {
+                return "Error: No layers selected. Please select layers to reset transform.";
+            }
+            
+            try {
+                var resetCount = 0;
+                for (var rt = 0; rt < selectedLayers.length; rt++) {
+                    var layer = selectedLayers[rt];
+                    var transform = layer.property("Transform");
+                    
+                    // Reset position to center
+                    var position = transform.property("Position");
+                    if (position) {
+                        position.setValue([comp.width / 2, comp.height / 2]);
+                    }
+                    
+                    // Reset scale to 100%
+                    var scale = transform.property("Scale");
+                    if (scale) {
+                        scale.setValue([100, 100]);
+                    }
+                    
+                    // Reset rotation to 0
+                    var rotation = transform.property("Rotation");
+                    if (rotation) {
+                        rotation.setValue(0);
+                    }
+                    
+                    // Reset opacity to 100%
+                    var opacity = transform.property("Opacity");
+                    if (opacity) {
+                        opacity.setValue(100);
+                    }
+                    
+                    resetCount++;
+                }
+                return "Success: Reset transform for " + resetCount + " layers";
+            } catch (e) {
+                return "Error: Could not reset transform. " + e.toString();
+            }
+            
         } else {
-            return "Error: Unknown command '" + action + "'. Use: select, unselect, solo, unsolo, hide, show, mute, unmute, audio, lock, unlock, shy, unshy, motion blur, 3d layer, parent to, track matte, unparent, untrack matte, select all, deselect all, label, scale, opacity, precompose";
+            return "Error: Unknown command '" + action + "'. Use: select, unselect, solo, unsolo, hide, show, mute, unmute, audio, lock, unlock, shy, unshy, motion blur, 3d layer, parent to, track matte, unparent, untrack matte, select all, deselect all, label, scale, opacity, precompose, duplicate, center anchor, fit to comp, reset transform";
         }
         
                 } catch (e) {
@@ -1288,7 +1419,11 @@ function addLayerCommands() {
         "label dark green",
         "scale",
         "opacity",
-        "precompose"
+        "precompose",
+        "duplicate",
+        "center anchor",
+        "fit to comp",
+        "reset transform"
     ];
     
     // Add commands to the effects list
@@ -1322,13 +1457,22 @@ function processCommand(command) {
         var parts = trimmedCommand.split(" ");
         var action = parts[0].toLowerCase();
         
-        // Check for two-word commands
+        // Check for multi-word commands
         if (parts.length >= 2) {
             var twoWordCommand = (parts[0] + " " + parts[1]).toLowerCase();
             if (twoWordCommand === "motion blur" || twoWordCommand === "3d layer" || twoWordCommand === "parent to" || twoWordCommand === "track matte" ||
                 twoWordCommand === "select all" || twoWordCommand === "deselect all" || twoWordCommand === "untrack matte" ||
+                twoWordCommand === "center anchor" || twoWordCommand === "reset transform" ||
                 parts[0].toLowerCase() === "label") {
                 action = twoWordCommand;
+            }
+        }
+        
+        // Check for three-word commands
+        if (parts.length >= 3) {
+            var threeWordCommand = (parts[0] + " " + parts[1] + " " + parts[2]).toLowerCase();
+            if (threeWordCommand === "fit to comp") {
+                action = threeWordCommand;
             }
         }
         
@@ -1340,7 +1484,8 @@ function processCommand(command) {
                    action === "audio" || action === "lock" || action === "unlock" || action === "shy" ||
                    action === "unshy" || action === "motion blur" || action === "3d layer" || action === "unparent" ||
                    action === "untrack matte" || action === "deselect all" || action === "select all" ||
-                   action === "precompose" || (parts.length >= 2 && parts[0].toLowerCase() === "label")) {
+                   action === "precompose" || action === "duplicate" || action === "center anchor" ||
+                   action === "fit to comp" || action === "reset transform" || (parts.length >= 2 && parts[0].toLowerCase() === "label")) {
             return processLayerCommand(command);
         } else if (action === "solid" || action === "text" || action === "light" || 
                    action === "camera" || action === "null" || action === "adjustment") {
