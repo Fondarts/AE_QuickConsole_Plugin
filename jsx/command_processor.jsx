@@ -1,4 +1,4 @@
-// Simple Effect Scanner V49 - Only scans 2 specific folders
+// Simple Effect Scanner V50 - Only scans 2 specific folders
 var allEffects = [];
 var allEffectsWithPaths = [];
 
@@ -129,7 +129,7 @@ function applyEffect(effectName) {
                    action === "audio" || action === "lock" || action === "unlock" || action === "shy" ||
                    action === "unshy" || effectName === "motion blur" || effectName === "3d layer" ||
                    effectName === "parent to" || effectName === "track matte" || action === "scale" || action === "opacity" ||
-                   (parts.length >= 2 && parts[0].toLowerCase() === "label")) {
+                   action === "precompose" || (parts.length >= 2 && parts[0].toLowerCase() === "label")) {
             // This is a layer property command that needs parameters
             if (effectName === "parent to") {
                 return "Enter parent layer number (e.g., 5) and press Enter";
@@ -147,6 +147,9 @@ function applyEffect(effectName) {
                 return processLayerCommand(effectName);
             } else if (parts.length >= 2 && parts[0].toLowerCase() === "deselect" && parts[1].toLowerCase() === "all") {
                 // Handle deselect all directly in applyEffect
+                return processLayerCommand(effectName);
+            } else if (action === "precompose") {
+                // Handle precompose directly in applyEffect
                 return processLayerCommand(effectName);
             }
             return "Enter layer numbers (e.g., 1,2,4) or press Enter for selected layers";
