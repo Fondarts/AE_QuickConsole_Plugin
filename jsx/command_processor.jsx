@@ -1,4 +1,4 @@
-// Simple Effect Scanner V36 - Only scans 2 specific folders
+// Simple Effect Scanner V37 - Only scans 2 specific folders
 var allEffects = [];
 var allEffectsWithPaths = [];
 
@@ -128,8 +128,7 @@ function applyEffect(effectName) {
                    action === "hide" || action === "show" || action === "mute" || action === "unmute" ||
                    action === "audio" || action === "lock" || action === "unlock" || action === "shy" ||
                    action === "unshy" || effectName === "motion blur" || effectName === "3d layer" ||
-                   effectName === "parent to" || effectName === "track matte" || action === "unparent" || action === "untrack matte" ||
-                   action === "select" || action === "deselect" || action === "label" || action === "scale" || action === "opacity") {
+                   effectName === "parent to" || effectName === "track matte" || action === "scale" || action === "opacity") {
             // This is a layer property command that needs parameters
             if (effectName === "parent to") {
                 return "Enter parent layer number (e.g., 5) and press Enter";
@@ -1276,6 +1275,9 @@ function processCommand(command) {
                    action === "audio" || action === "lock" || action === "unlock" || action === "shy" ||
                    action === "unshy" || action === "motion blur" || action === "3d layer" || action === "unparent" ||
                    action === "untrack" || action === "deselect" || action === "label") {
+            return processLayerCommand(command);
+        } else if (action === "unparent" || action === "untrack" || action === "deselect" || action === "label" ||
+                   (action === "select" && parts[1] === "all")) {
             return processLayerCommand(command);
         } else if (action === "solid" || action === "text" || action === "light" || 
                    action === "camera" || action === "null" || action === "adjustment") {
