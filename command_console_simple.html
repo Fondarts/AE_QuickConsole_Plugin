@@ -156,7 +156,7 @@
         <div class="header">
             <div class="header-title">
                 Command Console
-                <span class="version-badge">V64</span>
+                <span class="version-badge">V65</span>
             </div>
             <div class="config-container">
                 <button class="config-button" id="config-btn">⚙️ Config</button>
@@ -216,7 +216,9 @@
                 effectsList.innerHTML = '<div>No effects found</div>';
             } else {
                 var html = '';
-                for (var i = 0; i < effects.length; i++) {
+                // Limit to first 10 effects for better window adaptation
+                var maxEffects = Math.min(effects.length, 10);
+                for (var i = 0; i < maxEffects; i++) {
                     html += '<div class="effect-item" onclick="applyEffect(\'' + effects[i].replace(/'/g, "\\'") + '\')">' + (i + 1) + '. ' + effects[i] + '</div>';
                 }
                 effectsList.innerHTML = html;
@@ -251,7 +253,12 @@
             });
             
             displayEffects(filteredEffects);
-            updateStatus("Showing " + filteredEffects.length + " of " + allEffects.length + " effects");
+            var displayedCount = Math.min(filteredEffects.length, 10);
+            if (filteredEffects.length > 10) {
+                updateStatus("Showing first " + displayedCount + " of " + filteredEffects.length + " effects (of " + allEffects.length + " total)");
+            } else {
+                updateStatus("Showing " + displayedCount + " of " + allEffects.length + " effects");
+            }
         }
         
         function applyEffect(effectName) {
