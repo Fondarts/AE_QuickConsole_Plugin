@@ -1,4 +1,4 @@
-// Simple Effect Scanner V39 - Only scans 2 specific folders
+// Simple Effect Scanner V40 - Only scans 2 specific folders
 var allEffects = [];
 var allEffectsWithPaths = [];
 
@@ -1293,6 +1293,9 @@ function processCommand(command) {
             return processCreateCommand(command);
         } else if (action === "list" && parts[1] === "effects") {
             return exportEffectsList();
+        } else if (parts.length >= 2 && parts[0].toLowerCase() === "label") {
+            // Handle label commands specifically
+            return processLayerCommand(command);
         } else {
             // Try to apply as effect
             return applyEffect(command);
