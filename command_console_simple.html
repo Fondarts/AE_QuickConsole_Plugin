@@ -1,377 +1,156 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Command Launcher V57</title>
+    <meta charset="utf-8">
+    <title>Simple Effect Scanner V56</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #1a1a1a;
-            color: #ffffff;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        .window-frame {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background: #2d2d2d;
-        }
-
-        .title-bar {
-            background: #3a3a3a;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 12px;
-            border-bottom: 1px solid #4a4a4a;
-        }
-
-        .title-text {
-            font-size: 14px;
-            font-weight: 500;
-            color: #ffffff;
-        }
-
-        .close-btn {
-            width: 16px;
-            height: 16px;
-            background: #ff5f57;
-            border-radius: 50%;
-            border: none;
-            cursor: pointer;
-        }
-
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #2d2d2d;
-        }
-
-        .header-section {
-            background: #3a3a3a;
+            font-family: Arial, sans-serif;
+            background: #2a2a2a;
+            color: white;
+            margin: 0;
             padding: 20px;
-            border-bottom: 1px solid #4a4a4a;
         }
-
-        .app-title {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
         }
-
-        .rocket-icon {
-            width: 24px;
-            height: 24px;
-            background: #ffffff;
-            border-radius: 4px;
-            margin-right: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-        }
-
-        .app-name {
-            font-size: 18px;
-            font-weight: 600;
-            color: #ffffff;
-        }
-
-        .nav-tabs {
-            display: flex;
-            gap: 4px;
-        }
-
-        .nav-tab {
-            width: 40px;
-            height: 40px;
-            background: #4a4a4a;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #ffffff;
-            font-size: 16px;
-            transition: all 0.2s ease;
-        }
-
-        .nav-tab:hover {
-            background: #5a5a5a;
-        }
-
-        .nav-tab.active {
-            background: #007acc;
-        }
-
-        .search-section {
-            padding: 20px;
-            background: #2d2d2d;
-        }
-
-        .search-container {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        #search-input {
-            flex: 1;
-            padding: 12px 16px;
-            font-size: 16px;
-            border: 2px solid #007acc;
-            border-radius: 8px;
-            background: #000000;
-            color: #ffffff;
-            outline: none;
-            transition: border-color 0.3s ease;
-        }
-
-        #search-input:focus {
-            border-color: #0099ff;
-        }
-
-        #search-input::placeholder {
-            color: #666;
-        }
-
-        .favorite-btn {
-            position: absolute;
-            right: 12px;
-            width: 20px;
-            height: 20px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #666;
-            font-size: 16px;
-        }
-
-        .favorite-btn:hover {
-            color: #ffd700;
-        }
-
-        .results-section {
-            flex: 1;
-            overflow-y: auto;
-            background: #2d2d2d;
-        }
-
-        .results-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .table-header {
-            background: #3a3a3a;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        .table-header th {
-            padding: 12px 16px;
-            text-align: left;
-            font-size: 14px;
-            font-weight: 600;
-            color: #ffffff;
-            border-bottom: 1px solid #4a4a4a;
-        }
-
-        .table-header th:first-child {
-            width: 50%;
-        }
-
-        .table-header th:nth-child(2) {
-            width: 25%;
-        }
-
-        .table-header th:last-child {
-            width: 25%;
-        }
-
-        .result-row {
-            cursor: pointer;
-            transition: background 0.2s ease;
-            border-bottom: 1px solid #3a3a3a;
-        }
-
-        .result-row:hover {
-            background: #3a3a3a;
-        }
-
-        .result-row.selected {
-            background: #007acc;
-        }
-
-        .result-row td {
-            padding: 12px 16px;
-            font-size: 14px;
-            color: #ffffff;
-        }
-
-        .command-cell {
-            display: flex;
-            align-items: center;
-        }
-
-        .star-icon {
-            margin-right: 8px;
-            color: #ffd700;
-            font-size: 16px;
-        }
-
-        .type-badge {
-            background: #4a4a4a;
-            color: #ffffff;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .type-badge.effect {
-            background: #4CAF50;
-        }
-
-        .type-badge.command {
-            background: #2196F3;
-        }
-
-        .type-badge.layer {
-            background: #FF9800;
-        }
-
-        .status-bar {
-            padding: 12px 20px;
-            background: #3a3a3a;
-            border-top: 1px solid #4a4a4a;
-            font-size: 14px;
-            color: #888;
+        h1 {
+            color: #4CAF50;
             text-align: center;
         }
-
-        .export-section {
-            padding: 20px;
-            background: #2d2d2d;
-            border-top: 1px solid #4a4a4a;
+        .search-section {
+            margin: 10px 0;
         }
-
-        #export-btn {
+        .search-section input {
             width: 100%;
             padding: 12px;
-            background: #4CAF50;
-            color: white;
-            border: none;
+            background: #1a1a1a;
+            border: 1px solid #444;
             border-radius: 6px;
+            color: white;
             font-size: 14px;
-            font-weight: 500;
+            box-sizing: border-box;
+        }
+        .search-section input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        .search-section input::placeholder {
+            color: #888;
+        }
+        .status {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        .effects-list {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .effect-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #333;
             cursor: pointer;
-            transition: background 0.3s ease;
+            transition: background-color 0.2s;
         }
-
-        #export-btn:hover {
-            background: #45a049;
+        .effect-item:hover {
+            background-color: #333;
         }
-
-        .execute-btn {
+        .effect-item:last-child {
+            border-bottom: none;
+        }
+        .command-section {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .command-section input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #555;
+            border-radius: 4px;
+            background-color: #333;
+            color: #fff;
+            font-size: 12px;
+        }
+        
+        .command-section input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        
+        .execute-button {
             background: #2196F3;
             color: white;
             border: none;
-            padding: 6px 12px;
+            padding: 8px 16px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 12px;
-            margin-left: 8px;
-            transition: background 0.3s ease;
+            transition: background-color 0.2s;
         }
-
-        .execute-btn:hover {
+        
+        .execute-button:hover {
             background: #1976D2;
         }
-
-        /* Scrollbar styling */
-        .results-section::-webkit-scrollbar {
-            width: 8px;
+        
+        .execute-button:active {
+            background: #1565C0;
         }
-
-        .results-section::-webkit-scrollbar-track {
-            background: #2d2d2d;
+        
+        .export-section {
+            margin: 15px 0;
+            text-align: center;
         }
-
-        .results-section::-webkit-scrollbar-thumb {
-            background: #4a4a4a;
-            border-radius: 4px;
+        .export-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
         }
-
-        .results-section::-webkit-scrollbar-thumb:hover {
-            background: #5a5a5a;
+        .export-button:hover {
+            background: #45a049;
+        }
+        .export-button:active {
+            background: #3d8b40;
         }
     </style>
 </head>
 <body>
-    <div class="window-frame">
-        <div class="title-bar">
-            <div class="title-text">Command Launcher V57</div>
-            <button class="close-btn"></button>
+    <div class="container">
+        <h1>Simple Effect Scanner <span style="color: #4CAF50; font-size: 14px;">V56</span></h1>
+        
+        <div class="search-section">
+            <input type="text" id="search-input" placeholder="Search effects and commands..." autocomplete="off">
         </div>
         
-        <div class="main-content">
-            <div class="header-section">
-                <div class="app-title">
-                    <div class="rocket-icon">🚀</div>
-                    <div class="app-name">Command Launcher Pro</div>
-                </div>
-                
-                <div class="nav-tabs">
-                    <button class="nav-tab" data-tab="search" title="Search">🔍</button>
-                    <button class="nav-tab" data-tab="list" title="List">📋</button>
-                    <button class="nav-tab active" data-tab="favorites" title="Favorites">⭐</button>
-                    <button class="nav-tab" data-tab="stats" title="Statistics">📊</button>
-                </div>
-            </div>
-            
-            <div class="search-section">
-                <div class="search-container">
-                    <input type="text" id="search-input" placeholder="Search effects and commands..." autocomplete="off">
-                    <button class="favorite-btn" title="Add to favorites">⭐</button>
-                </div>
-            </div>
-            
-            <div class="results-section" id="results-section">
-                <table class="results-table">
-                    <thead class="table-header">
-                        <tr>
-                            <th>Comando</th>
-                            <th>Tipo</th>
-                            <th>Info</th>
-                        </tr>
-                    </thead>
-                    <tbody id="results-table-body">
-                        <!-- Results will be populated here -->
-                    </tbody>
-                </table>
-            </div>
-            
-            <div class="status-bar" id="status-bar">
-                Ready to search...
-            </div>
-            
-            <div class="export-section">
-                <button id="export-btn">Export Effects List</button>
-            </div>
+        <div class="command-section">
+            <input type="text" id="command-input" placeholder="Commands: select 1,5,7 | solo 1,3 | solid red | text | light | camera | null | adjustment" autocomplete="off">
+            <button id="execute-btn" class="execute-button">Execute</button>
+        </div>
+        
+        <div class="status" id="status">Loading...</div>
+        
+        <div class="effects-list" id="effects-list">
+            <div>Scanning effects...</div>
+        </div>
+        
+        <div class="export-section">
+            <button id="export-btn" class="export-button">Export Effects List</button>
         </div>
     </div>
     
@@ -380,11 +159,9 @@
         let csInterface = new CSInterface();
         let allEffects = [];
         let pendingCommand = null;
-        let favorites = [];
-        let recentCommands = [];
         
         function updateStatus(message) {
-            document.getElementById('status-bar').textContent = message;
+            document.getElementById('status').textContent = message;
         }
         
         function updateEffectsList() {
@@ -408,55 +185,16 @@
             }
         }
         
-        function getItemType(item) {
-            if (item.includes('select') || item.includes('solo') || item.includes('hide') || item.includes('show') || 
-                item.includes('mute') || item.includes('unmute') || item.includes('lock') || item.includes('unlock') ||
-                item.includes('shy') || item.includes('unshy') || item.includes('motion blur') || item.includes('3d layer') ||
-                item.includes('parent to') || item.includes('track matte') || item.includes('unparent') || item.includes('untrack matte') ||
-                item.includes('select all') || item.includes('deselect all') || item.includes('label') || item.includes('scale') ||
-                item.includes('opacity') || item.includes('precompose') || item.includes('duplicate') || item.includes('center anchor') ||
-                item.includes('fit to comp') || item.includes('reset transform') || item.includes('delete') || item.includes('normal') ||
-                item.includes('multiply') || item.includes('screen') || item.includes('overlay') || item.includes('soft light') ||
-                item.includes('hard light') || item.includes('add') || item.includes('difference')) {
-                return 'command';
-            } else if (item.includes('solid') || item.includes('text') || item.includes('light') || item.includes('camera') || 
-                       item.includes('null') || item.includes('adjustment')) {
-                return 'layer';
-            } else {
-                return 'effect';
-            }
-        }
-        
         function displayEffects(effects) {
-            var tableBody = document.getElementById('results-table-body');
+            var effectsList = document.getElementById('effects-list');
             if (effects.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 20px; color: #888;">No effects found</td></tr>';
+                effectsList.innerHTML = '<div>No effects found</div>';
             } else {
                 var html = '';
                 for (var i = 0; i < effects.length; i++) {
-                    var item = effects[i];
-                    var type = getItemType(item);
-                    var isFavorite = favorites.includes(item);
-                    var isRecent = recentCommands.includes(item);
-                    
-                    html += '<tr class="result-row" onclick="applyEffect(\'' + item.replace(/'/g, "\\'") + '\')">';
-                    html += '<td class="command-cell">';
-                    if (isFavorite) {
-                        html += '<span class="star-icon">⭐</span>';
-                    }
-                    html += item;
-                    html += '</td>';
-                    html += '<td><span class="type-badge ' + type + '">' + type.charAt(0).toUpperCase() + type.slice(1) + '</span></td>';
-                    html += '<td>';
-                    if (isRecent) {
-                        html += 'Reciente ' + (recentCommands.indexOf(item) + 1);
-                    } else {
-                        html += type.charAt(0).toUpperCase() + type.slice(1);
-                    }
-                    html += '</td>';
-                    html += '</tr>';
+                    html += '<div class="effect-item" onclick="applyEffect(\'' + effects[i].replace(/'/g, "\\'") + '\')">' + (i + 1) + '. ' + effects[i] + '</div>';
                 }
-                tableBody.innerHTML = html;
+                effectsList.innerHTML = html;
             }
         }
         
@@ -494,14 +232,6 @@
         function applyEffect(effectName) {
             updateStatus("Applying effect: " + effectName + "...");
             
-            // Add to recent commands
-            if (!recentCommands.includes(effectName)) {
-                recentCommands.unshift(effectName);
-                if (recentCommands.length > 10) {
-                    recentCommands.pop();
-                }
-            }
-            
             try {
                 csInterface.evalScript('applyEffect("' + effectName.replace(/"/g, '\\"') + '")', function(result) {
                     if (result && result !== 'EvalScript error.') {
@@ -514,7 +244,7 @@
                             updateStatus(result);
                             // Clear status after 3 seconds
                             setTimeout(function() {
-                                updateStatus("Found " + document.querySelectorAll('.result-row').length + " effects - Click any effect to apply it");
+                                updateStatus("Found " + document.querySelectorAll('.effect-item').length + " effects - Click any effect to apply it");
                             }, 3000);
                         }
                     } else {
@@ -560,10 +290,10 @@
             }
             
             // Normal flow - apply first visible effect
-            var visibleEffects = document.querySelectorAll('.result-row');
+            var visibleEffects = document.querySelectorAll('.effect-item');
             if (visibleEffects.length > 0) {
                 var firstEffect = visibleEffects[0];
-                var effectName = firstEffect.querySelector('.command-cell').textContent.replace('⭐', '').trim();
+                var effectName = firstEffect.textContent.replace(/^\d+\.\s*/, ''); // Remove number prefix
                 applyEffect(effectName);
             } else {
                 updateStatus("No effects found to apply");
@@ -596,48 +326,46 @@
             }
         }
         
-        function toggleFavorite() {
-            var searchInput = document.getElementById('search-input');
-            var searchValue = searchInput.value.trim();
-            
-            if (searchValue && allEffects.includes(searchValue)) {
-                if (favorites.includes(searchValue)) {
-                    favorites = favorites.filter(fav => fav !== searchValue);
-                    updateStatus("Removed from favorites: " + searchValue);
-                } else {
-                    favorites.push(searchValue);
-                    updateStatus("Added to favorites: " + searchValue);
-                }
-                displayEffects(allEffects);
+        function executeCommand() {
+            var command = document.getElementById('command-input').value;
+            if (!command || command.trim() === '') {
+                updateStatus("Please enter a command");
+                return;
             }
-        }
-        
-        // Navigation tab functionality
-        function switchTab(tabName) {
-            // Remove active class from all tabs
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
             
-            // Add active class to clicked tab
-            event.target.classList.add('active');
+            updateStatus("Executing command: " + command + "...");
             
-            // Handle tab switching logic here
-            switch(tabName) {
-                case 'search':
-                    updateStatus("Search mode - Type to find effects and commands");
-                    break;
-                case 'list':
-                    updateStatus("List mode - Showing all available effects and commands");
-                    displayEffects(allEffects);
-                    break;
-                case 'favorites':
-                    updateStatus("Favorites mode - Showing your favorite effects and commands");
-                    displayEffects(favorites.length > 0 ? favorites : allEffects);
-                    break;
-                case 'stats':
-                    updateStatus("Statistics - Total effects: " + allEffects.length + ", Favorites: " + favorites.length + ", Recent: " + recentCommands.length);
-                    break;
+            try {
+                // Escape the command properly for JSX
+                var escapedCommand = command.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/'/g, "\\'");
+                
+                // Determine which function to call based on command type
+                var parts = command.trim().split(" ");
+                var action = parts[0].toLowerCase();
+                var jsxCall;
+                
+                if (action === "select" || action === "unselect" || action === "solo" || action === "unsolo") {
+                    jsxCall = 'processLayerCommand("' + escapedCommand + '")';
+                } else if (action === "solid" || action === "text" || action === "light" || action === "camera" || action === "null" || action === "adjustment" || action === "adjustmentlayer") {
+                    jsxCall = 'processCreateCommand("' + escapedCommand + '")';
+                } else {
+                    updateStatus("Error: Unknown command '" + action + "'. Use: select, unselect, solo, unsolo, solid, text, light, camera, null, or adjustment");
+                    return;
+                }
+                
+                csInterface.evalScript(jsxCall, function(result) {
+                    if (result && result !== 'EvalScript error.') {
+                        updateStatus(result);
+                        // Clear status after 3 seconds
+                        setTimeout(function() {
+                            updateStatus("Found " + document.querySelectorAll('.effect-item').length + " effects - Click any effect to apply it");
+                        }, 3000);
+                    } else {
+                        updateStatus("Error executing command: " + result);
+                    }
+                });
+            } catch (e) {
+                updateStatus("Error: " + e.toString());
             }
         }
         
@@ -658,14 +386,14 @@
             // Add event listener for export button
             document.getElementById('export-btn').addEventListener('click', exportEffects);
             
-            // Add event listener for favorite button
-            document.querySelector('.favorite-btn').addEventListener('click', toggleFavorite);
+            // Add event listener for execute button
+            document.getElementById('execute-btn').addEventListener('click', executeCommand);
             
-            // Add event listeners for navigation tabs
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    switchTab(this.dataset.tab);
-                });
+            // Add event listener for command input (Enter key)
+            document.getElementById('command-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    executeCommand();
+                }
             });
             
             // Wait a moment for JSX to initialize, then load effects
