@@ -2,75 +2,157 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Simple Effect Scanner V56</title>
+    <title>Command Console</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #2a2a2a;
-            color: white;
+        * {
             margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .header {
-            background: #3a3a3a;
-            padding: 12px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #4a4a4a;
+            padding: 0;
+            box-sizing: border-box;
         }
         
-        .header-title {
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: transparent;
+            color: #ffffff;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .spotlight-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .search-bar {
+            background: rgba(30, 30, 30, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .search-bar:focus-within {
+            border-color: rgba(76, 175, 80, 0.5);
+            box-shadow: 0 8px 32px rgba(76, 175, 80, 0.2);
+        }
+        
+        .search-icon {
+            color: #888;
+            font-size: 16px;
+        }
+        
+        .search-input {
+            flex: 1;
+            background: transparent;
+            border: none;
             color: #ffffff;
             font-size: 16px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            outline: none;
+            font-weight: 400;
         }
         
-        .version-badge {
-            background: #4CAF50;
-            color: #000000;
-            padding: 2px 6px;
-            border-radius: 3px;
+        .search-input::placeholder {
+            color: #888;
+        }
+        
+        .version-indicator {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+            padding: 4px 8px;
+            border-radius: 6px;
             font-size: 11px;
             font-weight: 600;
         }
         
-        .config-button {
-            background: #555;
-            border: none;
-            color: #ffffff;
-            padding: 8px 12px;
-            border-radius: 4px;
-            cursor: pointer;
+        .results-container {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(30, 30, 30, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            margin-top: 8px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-height: 400px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .results-container.show {
+            display: block;
+        }
+        
+        .status-bar {
+            padding: 12px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             font-size: 12px;
-            transition: background-color 0.2s;
+            color: #888;
+            text-align: center;
         }
         
-        .config-button:hover {
-            background: #666;
+        .results-list {
+            padding: 8px 0;
         }
         
-        .config-container {
-            position: relative;
+        .result-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+        }
+        
+        .result-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .result-item.selected {
+            background: rgba(76, 175, 80, 0.1);
+        }
+        
+        .result-number {
+            color: #888;
+            font-size: 12px;
+            min-width: 20px;
+        }
+        
+        .result-name {
+            flex: 1;
+        }
+        
+        .no-results {
+            padding: 20px;
+            text-align: center;
+            color: #888;
+            font-size: 14px;
         }
         
         .config-menu {
             position: absolute;
             top: 100%;
             right: 0;
-            background: #2a2a2a;
-            border: 1px solid #444;
-            border-radius: 6px;
+            background: rgba(30, 30, 30, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
             padding: 8px 0;
             min-width: 180px;
             display: none;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             z-index: 1000;
         }
         
@@ -79,104 +161,75 @@
         }
         
         .config-menu-item {
-            padding: 8px 16px;
+            padding: 12px 16px;
             color: #ffffff;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 14px;
             transition: background-color 0.2s;
         }
         
         .config-menu-item:hover {
-            background: #3a3a3a;
+            background: rgba(255, 255, 255, 0.05);
         }
         
-        .config-menu-item:first-child {
-            border-top-left-radius: 6px;
-            border-top-right-radius: 6px;
-        }
-        
-        .config-menu-item:last-child {
-            border-bottom-left-radius: 6px;
-            border-bottom-right-radius: 6px;
-        }
-        .search-section {
-            margin: 8px 0;
-        }
-        .search-section input {
-            width: 100%;
-            padding: 10px;
-            background: #1a1a1a;
-            border: 1px solid #444;
+        .config-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #ffffff;
+            padding: 8px 12px;
             border-radius: 6px;
-            color: white;
-            font-size: 12px;
-            box-sizing: border-box;
-        }
-        .search-section input:focus {
-            outline: none;
-            border-color: #4CAF50;
-        }
-        .search-section input::placeholder {
-            color: #888;
-        }
-        .status {
-            background: #1a1a1a;
-            border: 1px solid #444;
-            border-radius: 6px;
-            padding: 8px;
-            margin: 8px 0;
-            text-align: center;
-            font-size: 12px;
-        }
-        .effects-list {
-            background: #1a1a1a;
-            border: 1px solid #444;
-            border-radius: 6px;
-            padding: 10px;
-            /* Removed fixed height and scrollbar for adaptive window */
-        }
-        .effect-item {
-            padding: 6px 10px;
-            border-bottom: 1px solid #333;
             cursor: pointer;
+            font-size: 12px;
             transition: background-color 0.2s;
-            font-size: 11px;
-        }
-        .effect-item:hover {
-            background-color: #333;
-        }
-        .effect-item:last-child {
-            border-bottom: none;
         }
         
+        .config-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .config-container {
+            position: relative;
+        }
+        
+        /* Scrollbar styling */
+        .results-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .results-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .results-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+        
+        .results-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="header-title">
-                Command Console
-                <span class="version-badge">V65</span>
-            </div>
+    <div class="spotlight-container">
+        <div class="search-bar">
+            <div class="search-icon">🔍</div>
+            <input type="text" id="search-input" class="search-input" placeholder="Search effects and commands..." autocomplete="off">
+            <div class="version-indicator">V66</div>
             <div class="config-container">
-                <button class="config-button" id="config-btn">⚙️ Config</button>
+                <button class="config-button" id="config-btn">⚙️</button>
                 <div class="config-menu" id="config-menu">
                     <div class="config-menu-item" id="export-menu-item">📤 Export Effects List</div>
                 </div>
             </div>
         </div>
         
-        <div class="search-section">
-            <input type="text" id="search-input" placeholder="Search effects and commands..." autocomplete="off">
+        <div class="results-container" id="results-container">
+            <div class="status-bar" id="status">Start typing to search effects and commands...</div>
+            <div class="results-list" id="results-list">
+                <div class="no-results">No results to display</div>
+            </div>
         </div>
-        
-        
-        <div class="status" id="status">Loading...</div>
-        
-        <div class="effects-list" id="effects-list">
-            <div>Start typing to search effects and commands...</div>
-        </div>
-        
     </div>
     
     <script src="js/lib/CSInterface.js"></script>
@@ -184,6 +237,7 @@
         let csInterface = new CSInterface();
         let allEffects = [];
         let pendingCommand = null;
+        let selectedIndex = 0;
         
         function updateStatus(message) {
             document.getElementById('status').textContent = message;
@@ -199,7 +253,7 @@
                             allEffects = result.split('\n');
                         }
                         // Don't display effects initially - only show when user types
-                        displayEffects([]);
+                        displayResults([]);
                         updateStatus("Found " + allEffects.length + " effects - Start typing to search");
                     } else {
                         updateStatus("Error loading effects: " + result);
@@ -210,18 +264,26 @@
             }
         }
         
-        function displayEffects(effects) {
-            var effectsList = document.getElementById('effects-list');
-            if (effects.length === 0) {
-                effectsList.innerHTML = '<div>No effects found</div>';
+        function displayResults(results) {
+            var resultsContainer = document.getElementById('results-container');
+            var resultsList = document.getElementById('results-list');
+            
+            if (results.length === 0) {
+                resultsContainer.classList.remove('show');
+                resultsList.innerHTML = '<div class="no-results">No results to display</div>';
             } else {
+                resultsContainer.classList.add('show');
                 var html = '';
-                // Limit to first 10 effects for better window adaptation
-                var maxEffects = Math.min(effects.length, 10);
-                for (var i = 0; i < maxEffects; i++) {
-                    html += '<div class="effect-item" onclick="applyEffect(\'' + effects[i].replace(/'/g, "\\'") + '\')">' + (i + 1) + '. ' + effects[i] + '</div>';
+                // Limit to first 10 results for better window adaptation
+                var maxResults = Math.min(results.length, 10);
+                for (var i = 0; i < maxResults; i++) {
+                    var isSelected = i === selectedIndex ? 'selected' : '';
+                    html += '<div class="result-item ' + isSelected + '" onclick="applyEffect(\'' + results[i].replace(/'/g, "\\'") + '\')">' +
+                            '<div class="result-number">' + (i + 1) + '</div>' +
+                            '<div class="result-name">' + results[i] + '</div>' +
+                            '</div>';
                 }
-                effectsList.innerHTML = html;
+                resultsList.innerHTML = html;
             }
         }
         
@@ -252,7 +314,8 @@
                 return a.localeCompare(b);
             });
             
-            displayEffects(filteredEffects);
+            selectedIndex = 0; // Reset selection
+            displayResults(filteredEffects);
             var displayedCount = Math.min(filteredEffects.length, 10);
             if (filteredEffects.length > 10) {
                 updateStatus("Showing first " + displayedCount + " of " + filteredEffects.length + " effects (of " + allEffects.length + " total)");
@@ -276,7 +339,7 @@
                             updateStatus(result);
                             // Clear status after 3 seconds
                             setTimeout(function() {
-                                updateStatus("Found " + document.querySelectorAll('.effect-item').length + " effects - Click any effect to apply it");
+                                updateStatus("Found " + document.querySelectorAll('.result-item').length + " effects - Click any effect to apply it");
                             }, 3000);
                         }
                     } else {
@@ -322,10 +385,10 @@
             }
             
             // Normal flow - apply first visible effect
-            var visibleEffects = document.querySelectorAll('.effect-item');
+            var visibleEffects = document.querySelectorAll('.result-item');
             if (visibleEffects.length > 0) {
                 var firstEffect = visibleEffects[0];
-                var effectName = firstEffect.textContent.replace(/^\d+\.\s*/, ''); // Remove number prefix
+                var effectName = firstEffect.querySelector('.result-name').textContent;
                 applyEffect(effectName);
             } else {
                 updateStatus("No effects found to apply");
@@ -343,21 +406,20 @@
                     if (result && result !== 'EvalScript error.') {
                         updateStatus(result);
                         // Restore effects list after command execution
-                        displayEffects(allEffects);
+                        displayResults(allEffects);
                         setTimeout(function() {
                             updateStatus("Found " + allEffects.length + " effects - Click any effect to apply it");
                         }, 3000);
                     } else {
                         updateStatus("Error executing command: " + result);
                         // Restore effects list even on error
-                        displayEffects(allEffects);
+                        displayResults(allEffects);
                     }
                 });
             } catch (e) {
                 updateStatus("Error: " + e.toString());
             }
         }
-        
         
         // Configuration menu functionality
         function toggleConfigMenu() {

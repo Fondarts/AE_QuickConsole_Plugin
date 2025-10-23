@@ -1,4 +1,4 @@
-// Simple Effect Scanner V65 - Only scans 2 specific folders
+// Simple Effect Scanner V66 - Spotlight-style minimal interface
 var allEffects = [];
 var allEffectsWithPaths = [];
 
