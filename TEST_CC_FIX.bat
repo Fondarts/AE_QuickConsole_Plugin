@@ -44,3 +44,4 @@ echo 4. Si funciona: busca "CC Composite"
 echo 5. Si se rompe: dira "No effects found"
 echo.
 pause
+

@@ -58,3 +58,4 @@ echo 5. Busca "3D Camera Tracker" (sin %%20)
 echo 6. Prueba aplicar "3D Camera Tracker" - deberia funcionar!
 echo.
 pause
+

@@ -91,3 +91,4 @@ echo 4. Deberia mostrar "Simple Effect Scanner V29"
 echo 5. Prueba: escribe "hide" + Enter (se borra) + "1,2,4" + Enter
 echo.
 pause
+

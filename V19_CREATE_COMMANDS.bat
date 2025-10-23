@@ -73,3 +73,4 @@ echo 4. Deberia mostrar "Simple Effect Scanner V19"
 echo 5. Prueba comandos como "solid red" o "text"
 echo.
 pause
+

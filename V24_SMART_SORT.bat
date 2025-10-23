@@ -66,3 +66,4 @@ echo 4. Deberia mostrar "Simple Effect Scanner V24"
 echo 5. Busca "solid" y veras el nuevo ordenamiento
 echo.
 pause
+

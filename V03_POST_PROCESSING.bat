@@ -58,3 +58,4 @@ echo 5. Busca "CC Composite" y "CC Bubbles" en la lista
 echo 6. Prueba aplicar "CC Composite" - deberia funcionar!
 echo.
 pause
+

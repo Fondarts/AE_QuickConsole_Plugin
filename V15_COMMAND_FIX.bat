@@ -64,3 +64,4 @@ echo 4. Deberia mostrar "Simple Effect Scanner V15"
 echo 5. Prueba comandos como "select 1,3" o "solo 2"
 echo.
 pause
+

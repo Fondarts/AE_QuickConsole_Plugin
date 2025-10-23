@@ -66,3 +66,4 @@ echo 4. Deberia mostrar "Simple Effect Scanner V25"
 echo 5. Busca "select" o "solo" y haz click
 echo.
 pause
+

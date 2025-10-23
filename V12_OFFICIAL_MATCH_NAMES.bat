@@ -63,3 +63,4 @@ echo 5. Busca efectos corregidos como "CC Block Load", "CC Burn Film", etc.
 echo 6. Prueba aplicar estos efectos - deberian funcionar!
 echo.
 pause
+

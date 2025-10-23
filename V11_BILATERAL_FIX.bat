@@ -61,3 +61,4 @@ echo 5. Busca "Bilateral Blur" (en lugar de "Bilateral")
 echo 6. Prueba aplicar "Bilateral Blur" - deberia funcionar!
 echo.
 pause
+

@@ -1,4 +1,4 @@
-// Simple Effect Scanner V30 - Only scans 2 specific folders
+// Simple Effect Scanner V35 - Only scans 2 specific folders
 var allEffects = [];
 var allEffectsWithPaths = [];
 
@@ -127,8 +127,14 @@ function applyEffect(effectName) {
         } else if (action === "select" || action === "unselect" || action === "solo" || action === "unsolo" ||
                    action === "hide" || action === "show" || action === "mute" || action === "unmute" ||
                    action === "audio" || action === "lock" || action === "unlock" || action === "shy" ||
-                   action === "unshy" || effectName === "motion blur" || effectName === "3d layer") {
+                   action === "unshy" || effectName === "motion blur" || effectName === "3d layer" ||
+                   effectName === "parent to" || effectName === "track matte") {
             // This is a layer property command that needs parameters
+            if (effectName === "parent to") {
+                return "Enter parent layer number (e.g., 5) and press Enter";
+            } else if (effectName === "track matte") {
+                return "Enter track matte layer number (e.g., 3) and press Enter";
+            }
             return "Enter layer numbers (e.g., 1,2,4) or press Enter for selected layers";
         }
         
@@ -225,7 +231,8 @@ function processLayerCommand(command) {
         // Check for two-word commands
         if (parts.length >= 2) {
             var twoWordCommand = (parts[0] + " " + parts[1]).toLowerCase();
-            if (twoWordCommand === "motion blur" || twoWordCommand === "3d layer") {
+            if (twoWordCommand === "motion blur" || twoWordCommand === "3d layer" ||
+                twoWordCommand === "parent to" || twoWordCommand === "track matte") {
                 action = twoWordCommand;
             }
         }
@@ -618,8 +625,79 @@ function processLayerCommand(command) {
             }
             return "Success: Enable 3D for layers " + layerNumbers;
             
+        } else if (action === "parent to") {
+            if (parts.length < 3) {
+                return "Error: Please specify parent layer number. Example: parent to 5";
+            }
+            
+            var parentNumber = parseInt(parts[2]);
+            if (isNaN(parentNumber) || parentNumber < 1 || parentNumber > layers.length) {
+                return "Error: Parent layer " + parentNumber + " does not exist. Composition has " + layers.length + " layers.";
+            }
+            
+            var parentLayer = layers[parentNumber];
+            var selectedLayers = comp.selectedLayers;
+            
+            if (!selectedLayers || selectedLayers.length === 0) {
+                return "Error: No layers selected. Please select layers to parent.";
+            }
+            
+            var parentedCount = 0;
+            for (var p = 0; p < selectedLayers.length; p++) {
+                var layer = selectedLayers[p];
+                if (layer !== parentLayer) { // Don't parent a layer to itself
+                    layer.parent = parentLayer;
+                    parentedCount++;
+                }
+            }
+            
+            return "Success: Parented " + parentedCount + " layers to layer " + parentNumber;
+            
+        } else if (action === "track matte") {
+            if (parts.length < 3) {
+                return "Error: Please specify track matte layer number. Example: track matte 3";
+            }
+            
+            var trackMatteNumber = parseInt(parts[2]);
+            if (isNaN(trackMatteNumber) || trackMatteNumber < 1 || trackMatteNumber > layers.length) {
+                return "Error: Track matte layer " + trackMatteNumber + " does not exist. Composition has " + layers.length + " layers.";
+            }
+            
+            var trackMatteLayer = layers[trackMatteNumber];
+            var selectedLayers = comp.selectedLayers;
+            
+            if (!selectedLayers || selectedLayers.length === 0) {
+                return "Error: No layers selected. Please select layers to set track matte.";
+            }
+            
+            var trackMatteCount = 0;
+            for (var tm = 0; tm < selectedLayers.length; tm++) {
+                var layer = selectedLayers[tm];
+                if (layer !== trackMatteLayer) { // Don't set track matte to itself
+                    try {
+                        // Set track matte type first
+                        layer.trackMatteType = TrackMatteType.ALPHA;
+                        // Use the correct method to set track matte layer
+                        layer.setTrackMatte(trackMatteLayer, TrackMatteType.ALPHA);
+                        trackMatteCount++;
+                    } catch (e) {
+                        // If setTrackMatte doesn't work, try alternative method
+                        try {
+                            layer.trackMatteType = TrackMatteType.ALPHA;
+                            // Alternative: move the track matte layer above and set relationship
+                            trackMatteLayer.moveBefore(layer);
+                            trackMatteCount++;
+                        } catch (e2) {
+                            // Continue with other layers if this one fails
+                        }
+                    }
+                }
+            }
+            
+            return "Success: Set track matte alpha for " + trackMatteCount + " layers using layer " + trackMatteNumber;
+            
         } else {
-            return "Error: Unknown command '" + action + "'. Use: select, unselect, solo, unsolo, hide, show, mute, unmute, audio, lock, unlock, shy, unshy, motion blur, 3d layer";
+            return "Error: Unknown command '" + action + "'. Use: select, unselect, solo, unsolo, hide, show, mute, unmute, audio, lock, unlock, shy, unshy, motion blur, 3d layer, parent to, track matte";
         }
         
                 } catch (e) {
@@ -723,7 +801,7 @@ function processCreateCommand(command) {
     } catch (e) {
         return "Error: " + e.toString();
     } finally {
-        app.endUndoGroup();
+            app.endUndoGroup();
     }
 }
 
@@ -757,7 +835,7 @@ function exportEffectsList() {
             return "Error: Could not create export file.";
         }
         
-    } catch (e) {
+                } catch (e) {
         return "Error exporting effects: " + e.toString();
     }
 }
@@ -990,7 +1068,9 @@ function addLayerCommands() {
         "shy",
         "unshy",
         "motion blur",
-        "3d layer"
+        "3d layer",
+        "parent to",
+        "track matte"
     ];
     
     // Add commands to the effects list
@@ -1007,6 +1087,52 @@ function addLayerCommands() {
     allEffectsWithPaths.sort(function(a, b) {
         return a.name.localeCompare(b.name);
     });
+}
+
+// Process command from HTML interface
+function processCommand(command) {
+    try {
+        if (!command || typeof command !== 'string') {
+            return "Error: Invalid command parameter.";
+        }
+        
+        var trimmedCommand = command.replace(/^\s+|\s+$/g, ''); // Manual trim
+        if (trimmedCommand === '') {
+            return "Error: Empty command.";
+        }
+        
+        var parts = trimmedCommand.split(" ");
+        var action = parts[0].toLowerCase();
+        
+        // Check for two-word commands
+        if (parts.length >= 2) {
+            var twoWordCommand = (parts[0] + " " + parts[1]).toLowerCase();
+            if (twoWordCommand === "motion blur" || twoWordCommand === "3d layer" || twoWordCommand === "parent to" || twoWordCommand === "track matte") {
+                action = twoWordCommand;
+            }
+        }
+        
+        // Handle layer commands that need parameters
+        if (action === "parent to" || action === "track matte") {
+            return processLayerCommand(command);
+        } else if (action === "select" || action === "unselect" || action === "solo" || action === "unsolo" ||
+                   action === "hide" || action === "show" || action === "mute" || action === "unmute" ||
+                   action === "audio" || action === "lock" || action === "unlock" || action === "shy" ||
+                   action === "unshy" || action === "motion blur" || action === "3d layer") {
+            return processLayerCommand(command);
+        } else if (action === "solid" || action === "text" || action === "light" || 
+                   action === "camera" || action === "null" || action === "adjustment") {
+            return processCreateCommand(command);
+        } else if (action === "list" && parts[1] === "effects") {
+            return exportEffectsList();
+        } else {
+            // Try to apply as effect
+            return applyEffect(command);
+        }
+        
+    } catch (e) {
+        return "Error: " + e.toString();
+    }
 }
 
 // Initialize scanning

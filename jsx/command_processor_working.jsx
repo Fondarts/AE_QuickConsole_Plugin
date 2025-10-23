@@ -36,7 +36,8 @@ var allEffects = [
     "Spherize", "Spill Suppressor", "Stroke", "Strobe Light", "Stylize", "Texturize", 
     "Threshold", "Time Difference", "Time Displacement", "Timewarp", "Tint", "Tone", 
     "Transform", "Tritone", "Turbulent Displace", "Turbulent Noise", "Twirl", 
-    "Ultra Key", "Unsharp Mask", "Vegas", "Vibrance", "Warp", "Wave Warp", "Write-on"
+    "Ultra Key", "Unsharp Mask", "Vegas", "Vibrance", "Warp", "Wave Warp", "Write-on",
+    "parent to"
 ];
 
 // Set effects count
@@ -104,6 +105,50 @@ function processCommand(command) {
                 return "Available effects (" + allEffects.length + " total): " + effectList + "\n\nLista guardada en: " + fileName;
             } catch (e) {
                 return "Error listing effects: " + e.toString();
+            }
+        }
+        
+        // Handle parent to command
+        if (cmd.indexOf("parent to") === 0) {
+            try {
+                var comp = app.project.activeItem;
+                if (!comp || !(comp instanceof CompItem)) {
+                    return "Please select a composition first.";
+                }
+                
+                var parts = command.split(" ");
+                if (parts.length < 3) {
+                    return "Usage: parent to [layer_number]. Example: parent to 5";
+                }
+                
+                var parentNumber = parseInt(parts[2]);
+                if (isNaN(parentNumber) || parentNumber < 1 || parentNumber > comp.numLayers) {
+                    return "Error: Layer " + parentNumber + " does not exist. Composition has " + comp.numLayers + " layers.";
+                }
+                
+                var parentLayer = comp.layer(parentNumber);
+                var selectedLayers = comp.selectedLayers;
+                
+                if (!selectedLayers || selectedLayers.length === 0) {
+                    return "Error: No layers selected. Please select layers to parent.";
+                }
+                
+                app.beginUndoGroup("Parent Layers");
+                
+                var parentedCount = 0;
+                for (var i = 0; i < selectedLayers.length; i++) {
+                    var layer = selectedLayers[i];
+                    if (layer !== parentLayer) { // Don't parent a layer to itself
+                        layer.parent = parentLayer;
+                        parentedCount++;
+                    }
+                }
+                
+                app.endUndoGroup();
+                return "Success: Parented " + parentedCount + " layers to layer " + parentNumber;
+                
+            } catch (e) {
+                return "Error with parent command: " + e.toString();
             }
         }
         

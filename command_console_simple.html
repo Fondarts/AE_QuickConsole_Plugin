@@ -132,7 +132,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Simple Effect Scanner <span style="color: #4CAF50; font-size: 14px;">V30</span></h1>
+        <h1>Simple Effect Scanner <span style="color: #4CAF50; font-size: 14px;">V35</span></h1>
         
         <div class="search-section">
             <input type="text" id="search-input" placeholder="Search effects and commands..." autocomplete="off">
@@ -199,6 +199,11 @@
         }
         
         function filterEffects() {
+            // Don't filter effects if we have a pending command
+            if (pendingCommand) {
+                return;
+            }
+            
             var searchTerm = document.getElementById('search-input').value.toLowerCase();
             var filteredEffects = allEffects.filter(function(effect) {
                 return effect.toLowerCase().indexOf(searchTerm) !== -1;
@@ -231,10 +236,10 @@
                 csInterface.evalScript('applyEffect("' + effectName.replace(/"/g, '\\"') + '")', function(result) {
                     if (result && result !== 'EvalScript error.') {
                         // Check if this is a command that needs parameters
-                        if (result.indexOf("Enter layer numbers") !== -1) {
+                        if (result.indexOf("Enter layer numbers") !== -1 || result.indexOf("Enter parent layer number") !== -1 || result.indexOf("Enter track matte layer number") !== -1) {
                             pendingCommand = effectName;
                             document.getElementById('search-input').value = ''; // Clear the input field
-                            updateStatus("Enter layer numbers (e.g., 1,2,4) or press Enter for selected layers");
+                            updateStatus(result); // Use the exact message from JSX
                         } else {
                             updateStatus(result);
                             // Clear status after 3 seconds
@@ -305,11 +310,15 @@
                 csInterface.evalScript(jsxCall, function(result) {
                     if (result && result !== 'EvalScript error.') {
                         updateStatus(result);
+                        // Restore effects list after command execution
+                        displayEffects(allEffects);
                         setTimeout(function() {
-                            updateStatus("Found " + document.querySelectorAll('.effect-item').length + " effects - Click any effect to apply it");
+                            updateStatus("Found " + allEffects.length + " effects - Click any effect to apply it");
                         }, 3000);
                     } else {
                         updateStatus("Error executing command: " + result);
+                        // Restore effects list even on error
+                        displayEffects(allEffects);
                     }
                 });
             } catch (e) {

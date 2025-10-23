@@ -61,3 +61,4 @@ echo 5. Busca "Bezier Warp" (en lugar de "BezWarp New")
 echo 6. Prueba aplicar "Bezier Warp" - deberia funcionar!
 echo.
 pause
+

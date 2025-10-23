@@ -66,3 +66,4 @@ echo 5. Busca "Bass & Treble" y "Stereo Mixer"
 echo 6. Prueba aplicar efectos de audio - deberian funcionar!
 echo.
 pause
+

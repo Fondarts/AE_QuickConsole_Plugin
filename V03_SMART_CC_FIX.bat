@@ -57,3 +57,4 @@ echo 4. Deberia mostrar "Simple Effect Scanner V03"
 echo 5. Busca "CC Composite" y "CC Bubbles" en la lista
 echo.
 pause
+

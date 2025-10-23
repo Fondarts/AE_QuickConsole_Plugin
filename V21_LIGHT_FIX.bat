@@ -78,3 +78,4 @@ echo 4. Deberia mostrar "Simple Effect Scanner V21"
 echo 5. Prueba comandos como "light" o "solid red"
 echo.
 pause
+

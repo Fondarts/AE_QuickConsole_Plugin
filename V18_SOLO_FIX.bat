@@ -65,3 +65,4 @@ echo 4. Deberia mostrar "Simple Effect Scanner V18"
 echo 5. Prueba comandos como "solo 1" o "solo 2,3"
 echo.
 pause
+

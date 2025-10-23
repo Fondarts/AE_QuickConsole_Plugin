@@ -63,3 +63,4 @@ echo 4. Deberia mostrar "Simple Effect Scanner V22"
 echo 5. Busca "solid red" o "text" en la lista y haz click
 echo.
 pause
+

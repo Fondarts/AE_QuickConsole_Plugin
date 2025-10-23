@@ -82,3 +82,4 @@ echo 5. Prueba: escribe "motion blur" + Enter (se borra) + "1,2,4" + Enter
 echo 6. Prueba: escribe "3d layer" + Enter (se borra) + "1,2,4" + Enter
 echo.
 pause
+

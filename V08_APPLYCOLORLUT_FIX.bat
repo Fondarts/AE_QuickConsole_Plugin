@@ -60,3 +60,4 @@ echo 5. Busca "Apply Color Lut" (con espacios y Lut en minuscula)
 echo 6. Prueba aplicar "Apply Color Lut" - deberia funcionar!
 echo.
 pause
+

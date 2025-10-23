@@ -60,3 +60,4 @@ echo 5. Busca "3D Glasses" y "Audio Spectrum"
 echo 6. Prueba aplicar "3D Glasses" - deberia funcionar!
 echo.
 pause
+

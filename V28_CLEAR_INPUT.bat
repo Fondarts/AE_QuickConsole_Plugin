@@ -68,3 +68,4 @@ echo 4. Deberia mostrar "Simple Effect Scanner V28"
 echo 5. Prueba: escribe "select" + Enter (se borra) + "1,2,4" + Enter
 echo.
 pause
+

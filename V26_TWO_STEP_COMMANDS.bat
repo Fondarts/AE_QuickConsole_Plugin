@@ -72,3 +72,4 @@ echo 4. Deberia mostrar "Simple Effect Scanner V26"
 echo 5. Prueba: escribe "solo" + Enter + "1,2,4" + Enter
 echo.
 pause
+

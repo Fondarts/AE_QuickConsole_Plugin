@@ -68,3 +68,4 @@ echo 4. Deberia mostrar "Simple Effect Scanner V23"
 echo 5. Escribe "solid" y presiona ENTER
 echo.
 pause
+
