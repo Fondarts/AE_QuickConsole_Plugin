@@ -1,4 +1,4 @@
-// Simple Effect Scanner V55 - Only scans 2 specific folders
+// Simple Effect Scanner V56 - Only scans 2 specific folders
 var allEffects = [];
 var allEffectsWithPaths = [];
 
@@ -130,7 +130,10 @@ function applyEffect(effectName) {
                    action === "unshy" || effectName === "motion blur" || effectName === "3d layer" ||
                    effectName === "parent to" || effectName === "track matte" || action === "scale" || action === "opacity" ||
                    action === "precompose" || action === "duplicate" || effectName === "center anchor" ||
-                   effectName === "fit to comp" || effectName === "reset transform" || action === "delete" || (parts.length >= 2 && parts[0].toLowerCase() === "label")) {
+                   effectName === "fit to comp" || effectName === "reset transform" || action === "delete" ||
+                   action === "normal" || action === "multiply" || action === "screen" || action === "overlay" ||
+                   action === "add" || action === "difference" || effectName === "soft light" || effectName === "hard light" ||
+                   (parts.length >= 2 && parts[0].toLowerCase() === "label")) {
             // This is a layer property command that needs parameters
             if (effectName === "parent to") {
                 return "Enter parent layer number (e.g., 5) and press Enter";
@@ -166,6 +169,13 @@ function applyEffect(effectName) {
                 return processLayerCommand(effectName);
             } else if (action === "delete") {
                 // Handle delete directly in applyEffect
+                return processLayerCommand(effectName);
+            } else if (action === "normal" || action === "multiply" || action === "screen" || action === "overlay" ||
+                       action === "add" || action === "difference") {
+                // Handle blending mode commands directly in applyEffect
+                return processLayerCommand(effectName);
+            } else if (effectName === "soft light" || effectName === "hard light") {
+                // Handle multi-word blending mode commands directly in applyEffect
                 return processLayerCommand(effectName);
             }
             return "Enter layer numbers (e.g., 1,2,4) or press Enter for selected layers";
@@ -1071,8 +1081,152 @@ function processLayerCommand(command) {
                 return "Error: Could not delete layers. " + e.toString();
             }
             
+        } else if (action === "normal") {
+            var selectedLayers = comp.selectedLayers;
+            if (!selectedLayers || selectedLayers.length === 0) {
+                return "Error: No layers selected. Please select layers to set blending mode.";
+            }
+            
+            try {
+                var setCount = 0;
+                for (var n = 0; n < selectedLayers.length; n++) {
+                    var layer = selectedLayers[n];
+                    layer.blendingMode = BlendingMode.NORMAL;
+                    setCount++;
+                }
+                return "Success: Set blending mode to Normal for " + setCount + " layers";
+            } catch (e) {
+                return "Error: Could not set blending mode. " + e.toString();
+            }
+            
+        } else if (action === "multiply") {
+            var selectedLayers = comp.selectedLayers;
+            if (!selectedLayers || selectedLayers.length === 0) {
+                return "Error: No layers selected. Please select layers to set blending mode.";
+            }
+            
+            try {
+                var setCount = 0;
+                for (var m = 0; m < selectedLayers.length; m++) {
+                    var layer = selectedLayers[m];
+                    layer.blendingMode = BlendingMode.MULTIPLY;
+                    setCount++;
+                }
+                return "Success: Set blending mode to Multiply for " + setCount + " layers";
+            } catch (e) {
+                return "Error: Could not set blending mode. " + e.toString();
+            }
+            
+        } else if (action === "screen") {
+            var selectedLayers = comp.selectedLayers;
+            if (!selectedLayers || selectedLayers.length === 0) {
+                return "Error: No layers selected. Please select layers to set blending mode.";
+            }
+            
+            try {
+                var setCount = 0;
+                for (var s = 0; s < selectedLayers.length; s++) {
+                    var layer = selectedLayers[s];
+                    layer.blendingMode = BlendingMode.SCREEN;
+                    setCount++;
+                }
+                return "Success: Set blending mode to Screen for " + setCount + " layers";
+            } catch (e) {
+                return "Error: Could not set blending mode. " + e.toString();
+            }
+            
+        } else if (action === "overlay") {
+            var selectedLayers = comp.selectedLayers;
+            if (!selectedLayers || selectedLayers.length === 0) {
+                return "Error: No layers selected. Please select layers to set blending mode.";
+            }
+            
+            try {
+                var setCount = 0;
+                for (var o = 0; o < selectedLayers.length; o++) {
+                    var layer = selectedLayers[o];
+                    layer.blendingMode = BlendingMode.OVERLAY;
+                    setCount++;
+                }
+                return "Success: Set blending mode to Overlay for " + setCount + " layers";
+            } catch (e) {
+                return "Error: Could not set blending mode. " + e.toString();
+            }
+            
+        } else if (action === "soft" && parts[1] === "light") {
+            var selectedLayers = comp.selectedLayers;
+            if (!selectedLayers || selectedLayers.length === 0) {
+                return "Error: No layers selected. Please select layers to set blending mode.";
+            }
+            
+            try {
+                var setCount = 0;
+                for (var sl = 0; sl < selectedLayers.length; sl++) {
+                    var layer = selectedLayers[sl];
+                    layer.blendingMode = BlendingMode.SOFT_LIGHT;
+                    setCount++;
+                }
+                return "Success: Set blending mode to Soft Light for " + setCount + " layers";
+            } catch (e) {
+                return "Error: Could not set blending mode. " + e.toString();
+            }
+            
+        } else if (action === "hard" && parts[1] === "light") {
+            var selectedLayers = comp.selectedLayers;
+            if (!selectedLayers || selectedLayers.length === 0) {
+                return "Error: No layers selected. Please select layers to set blending mode.";
+            }
+            
+            try {
+                var setCount = 0;
+                for (var hl = 0; hl < selectedLayers.length; hl++) {
+                    var layer = selectedLayers[hl];
+                    layer.blendingMode = BlendingMode.HARD_LIGHT;
+                    setCount++;
+                }
+                return "Success: Set blending mode to Hard Light for " + setCount + " layers";
+            } catch (e) {
+                return "Error: Could not set blending mode. " + e.toString();
+            }
+            
+        } else if (action === "add") {
+            var selectedLayers = comp.selectedLayers;
+            if (!selectedLayers || selectedLayers.length === 0) {
+                return "Error: No layers selected. Please select layers to set blending mode.";
+            }
+            
+            try {
+                var setCount = 0;
+                for (var a = 0; a < selectedLayers.length; a++) {
+                    var layer = selectedLayers[a];
+                    layer.blendingMode = BlendingMode.ADD;
+                    setCount++;
+                }
+                return "Success: Set blending mode to Add for " + setCount + " layers";
+            } catch (e) {
+                return "Error: Could not set blending mode. " + e.toString();
+            }
+            
+        } else if (action === "difference") {
+            var selectedLayers = comp.selectedLayers;
+            if (!selectedLayers || selectedLayers.length === 0) {
+                return "Error: No layers selected. Please select layers to set blending mode.";
+            }
+            
+            try {
+                var setCount = 0;
+                for (var d = 0; d < selectedLayers.length; d++) {
+                    var layer = selectedLayers[d];
+                    layer.blendingMode = BlendingMode.DIFFERENCE;
+                    setCount++;
+                }
+                return "Success: Set blending mode to Difference for " + setCount + " layers";
+            } catch (e) {
+                return "Error: Could not set blending mode. " + e.toString();
+            }
+            
         } else {
-            return "Error: Unknown command '" + action + "'. Use: select, unselect, solo, unsolo, hide, show, mute, unmute, audio, lock, unlock, shy, unshy, motion blur, 3d layer, parent to, track matte, unparent, untrack matte, select all, deselect all, label, scale, opacity, precompose, duplicate, center anchor, fit to comp, reset transform, delete";
+            return "Error: Unknown command '" + action + "'. Use: select, unselect, solo, unsolo, hide, show, mute, unmute, audio, lock, unlock, shy, unshy, motion blur, 3d layer, parent to, track matte, unparent, untrack matte, select all, deselect all, label, scale, opacity, precompose, duplicate, center anchor, fit to comp, reset transform, delete, normal, multiply, screen, overlay, soft light, hard light, add, difference";
         }
         
                 } catch (e) {
@@ -1474,7 +1628,15 @@ function addLayerCommands() {
         "center anchor",
         "fit to comp",
         "reset transform",
-        "delete"
+        "delete",
+        "normal",
+        "multiply",
+        "screen",
+        "overlay",
+        "soft light",
+        "hard light",
+        "add",
+        "difference"
     ];
     
     // Add commands to the effects list
@@ -1536,7 +1698,11 @@ function processCommand(command) {
                    action === "unshy" || action === "motion blur" || action === "3d layer" || action === "unparent" ||
                    action === "untrack matte" || action === "deselect all" || action === "select all" ||
                    action === "precompose" || action === "duplicate" || action === "center anchor" ||
-                   action === "fit to comp" || action === "reset transform" || action === "delete" || (parts.length >= 2 && parts[0].toLowerCase() === "label")) {
+                   action === "fit to comp" || action === "reset transform" || action === "delete" ||
+                   action === "normal" || action === "multiply" || action === "screen" || action === "overlay" ||
+                   action === "add" || action === "difference" || (parts.length >= 2 && parts[0].toLowerCase() === "label") ||
+                   (parts.length >= 2 && parts[0].toLowerCase() === "soft" && parts[1].toLowerCase() === "light") ||
+                   (parts.length >= 2 && parts[0].toLowerCase() === "hard" && parts[1].toLowerCase() === "light")) {
             return processLayerCommand(command);
         } else if (action === "solid" || action === "text" || action === "light" || 
                    action === "camera" || action === "null" || action === "adjustment") {
