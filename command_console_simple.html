@@ -157,7 +157,7 @@
         <div class="header">
             <div class="header-title">
                 Command Console
-                <span class="version-badge">V61</span>
+                <span class="version-badge">V62</span>
             </div>
             <div class="config-container">
                 <button class="config-button" id="config-btn">⚙️ Config</button>
@@ -199,7 +199,8 @@
                             displayEffects([]);
                         } else {
                             allEffects = result.split('\n');
-                            displayEffects(allEffects);
+                            // Call filterEffects to display all effects initially
+                            filterEffects();
                         }
                         updateStatus("Found " + allEffects.length + " effects - Click any effect to apply it");
                     } else {
