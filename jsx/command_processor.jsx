@@ -1,4 +1,4 @@
-// Simple Effect Scanner V35 - Only scans 2 specific folders
+// Simple Effect Scanner V36 - Only scans 2 specific folders
 var allEffects = [];
 var allEffectsWithPaths = [];
 
@@ -128,12 +128,17 @@ function applyEffect(effectName) {
                    action === "hide" || action === "show" || action === "mute" || action === "unmute" ||
                    action === "audio" || action === "lock" || action === "unlock" || action === "shy" ||
                    action === "unshy" || effectName === "motion blur" || effectName === "3d layer" ||
-                   effectName === "parent to" || effectName === "track matte") {
+                   effectName === "parent to" || effectName === "track matte" || action === "unparent" || action === "untrack matte" ||
+                   action === "select" || action === "deselect" || action === "label" || action === "scale" || action === "opacity") {
             // This is a layer property command that needs parameters
             if (effectName === "parent to") {
                 return "Enter parent layer number (e.g., 5) and press Enter";
             } else if (effectName === "track matte") {
                 return "Enter track matte layer number (e.g., 3) and press Enter";
+            } else if (action === "scale") {
+                return "Enter scale percentage (e.g., 50 or 200) and press Enter";
+            } else if (action === "opacity") {
+                return "Enter opacity value (0-100) and press Enter";
             }
             return "Enter layer numbers (e.g., 1,2,4) or press Enter for selected layers";
         }
@@ -696,8 +701,136 @@ function processLayerCommand(command) {
             
             return "Success: Set track matte alpha for " + trackMatteCount + " layers using layer " + trackMatteNumber;
             
+        } else if (action === "unparent") {
+            var selectedLayers = comp.selectedLayers;
+            if (!selectedLayers || selectedLayers.length === 0) {
+                return "Error: No layers selected. Please select layers to unparent.";
+            }
+            
+            var unparentedCount = 0;
+            for (var up = 0; up < selectedLayers.length; up++) {
+                var layer = selectedLayers[up];
+                if (layer.parent) {
+                    layer.parent = null;
+                    unparentedCount++;
+                }
+            }
+            
+            return "Success: Unparented " + unparentedCount + " layers";
+            
+        } else if (action === "untrack matte") {
+            var selectedLayers = comp.selectedLayers;
+            if (!selectedLayers || selectedLayers.length === 0) {
+                return "Error: No layers selected. Please select layers to remove track matte.";
+            }
+            
+            var untrackedCount = 0;
+            for (var ut = 0; ut < selectedLayers.length; ut++) {
+                var layer = selectedLayers[ut];
+                if (layer.trackMatteType !== TrackMatteType.NO_TRACK_MATTE) {
+                    layer.trackMatteType = TrackMatteType.NO_TRACK_MATTE;
+                    untrackedCount++;
+                }
+            }
+            
+            return "Success: Removed track matte from " + untrackedCount + " layers";
+            
+        } else if (action === "select" && parts[1] === "all") {
+            for (var sa = 1; sa <= layers.length; sa++) {
+                layers[sa].selected = true;
+            }
+            return "Success: Selected all " + layers.length + " layers";
+            
+        } else if (action === "deselect" && parts[1] === "all") {
+            for (var da = 1; da <= layers.length; da++) {
+                layers[da].selected = false;
+            }
+            return "Success: Deselected all layers";
+            
+        } else if (action === "label") {
+            if (parts.length < 2) {
+                return "Error: Please specify label color. Example: label red";
+            }
+            
+            var labelColor = parts[1].toLowerCase();
+            var labelMap = {
+                "none": 0, "red": 1, "yellow": 2, "aqua": 3, "pink": 4, "lavender": 5,
+                "peach": 6, "sea": 7, "foam": 7, "blue": 8, "green": 9, "purple": 10,
+                "orange": 11, "brown": 12, "fuchsia": 13, "cyan": 14, "sandstone": 15, "dark": 16
+            };
+            
+            var labelValue = labelMap[labelColor];
+            if (labelValue === undefined) {
+                return "Error: Unknown label color '" + labelColor + "'. Use: none, red, yellow, aqua, pink, lavender, peach, sea foam, blue, green, purple, orange, brown, fuchsia, cyan, sandstone, dark green";
+            }
+            
+            var selectedLayers = comp.selectedLayers;
+            if (!selectedLayers || selectedLayers.length === 0) {
+                return "Error: No layers selected. Please select layers to label.";
+            }
+            
+            for (var l = 0; l < selectedLayers.length; l++) {
+                selectedLayers[l].label = labelValue;
+            }
+            
+            return "Success: Set label '" + labelColor + "' for " + selectedLayers.length + " layers";
+            
+        } else if (action === "scale") {
+            if (parts.length < 2) {
+                return "Error: Please specify scale percentage. Example: scale 50";
+            }
+            
+            var scaleValue = parseFloat(parts[1]);
+            if (isNaN(scaleValue) || scaleValue <= 0) {
+                return "Error: Invalid scale value. Use a positive number (e.g., 50 for 50%)";
+            }
+            
+            var selectedLayers = comp.selectedLayers;
+            if (!selectedLayers || selectedLayers.length === 0) {
+                return "Error: No layers selected. Please select layers to scale.";
+            }
+            
+            var scaledCount = 0;
+            for (var s = 0; s < selectedLayers.length; s++) {
+                var layer = selectedLayers[s];
+                var scale = layer.property("Transform").property("Scale");
+                if (scale && scale.numKeys === 0) {
+                    scale.setValue([scaleValue, scaleValue]);
+                    scaledCount++;
+                }
+            }
+            
+            return "Success: Set scale to " + scaleValue + "% for " + scaledCount + " layers";
+            
+        } else if (action === "opacity") {
+            if (parts.length < 2) {
+                return "Error: Please specify opacity value (0-100). Example: opacity 50";
+            }
+            
+            var opacityValue = parseFloat(parts[1]);
+            if (isNaN(opacityValue) || opacityValue < 0 || opacityValue > 100) {
+                return "Error: Invalid opacity value. Use a number between 0 and 100";
+            }
+            
+            var selectedLayers = comp.selectedLayers;
+            if (!selectedLayers || selectedLayers.length === 0) {
+                return "Error: No layers selected. Please select layers to set opacity.";
+            }
+            
+            var opacityCount = 0;
+            for (var o = 0; o < selectedLayers.length; o++) {
+                var layer = selectedLayers[o];
+                var opacity = layer.property("Transform").property("Opacity");
+                if (opacity && opacity.numKeys === 0) {
+                    opacity.setValue(opacityValue);
+                    opacityCount++;
+                }
+            }
+            
+            return "Success: Set opacity to " + opacityValue + "% for " + opacityCount + " layers";
+            
         } else {
-            return "Error: Unknown command '" + action + "'. Use: select, unselect, solo, unsolo, hide, show, mute, unmute, audio, lock, unlock, shy, unshy, motion blur, 3d layer, parent to, track matte";
+            return "Error: Unknown command '" + action + "'. Use: select, unselect, solo, unsolo, hide, show, mute, unmute, audio, lock, unlock, shy, unshy, motion blur, 3d layer, parent to, track matte, unparent, untrack matte, select all, deselect all, label, scale, opacity";
         }
         
                 } catch (e) {
@@ -1070,7 +1203,30 @@ function addLayerCommands() {
         "motion blur",
         "3d layer",
         "parent to",
-        "track matte"
+        "track matte",
+        "unparent",
+        "untrack matte",
+        "select all",
+        "deselect all",
+        "label none",
+        "label red",
+        "label yellow",
+        "label aqua",
+        "label pink",
+        "label lavender",
+        "label peach",
+        "label sea foam",
+        "label blue",
+        "label green",
+        "label purple",
+        "label orange",
+        "label brown",
+        "label fuchsia",
+        "label cyan",
+        "label sandstone",
+        "label dark green",
+        "scale",
+        "opacity"
     ];
     
     // Add commands to the effects list
@@ -1113,12 +1269,13 @@ function processCommand(command) {
         }
         
         // Handle layer commands that need parameters
-        if (action === "parent to" || action === "track matte") {
+        if (action === "parent to" || action === "track matte" || action === "scale" || action === "opacity") {
             return processLayerCommand(command);
         } else if (action === "select" || action === "unselect" || action === "solo" || action === "unsolo" ||
                    action === "hide" || action === "show" || action === "mute" || action === "unmute" ||
                    action === "audio" || action === "lock" || action === "unlock" || action === "shy" ||
-                   action === "unshy" || action === "motion blur" || action === "3d layer") {
+                   action === "unshy" || action === "motion blur" || action === "3d layer" || action === "unparent" ||
+                   action === "untrack" || action === "deselect" || action === "label") {
             return processLayerCommand(command);
         } else if (action === "solid" || action === "text" || action === "light" || 
                    action === "camera" || action === "null" || action === "adjustment") {
