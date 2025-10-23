@@ -1,4 +1,4 @@
-// Simple Effect Scanner V41 - Only scans 2 specific folders
+// Simple Effect Scanner V42 - Only scans 2 specific folders
 var allEffects = [];
 var allEffectsWithPaths = [];
 
@@ -141,6 +141,12 @@ function applyEffect(effectName) {
                 return "Enter opacity value (0-100) and press Enter";
             } else if (parts.length >= 2 && parts[0].toLowerCase() === "label") {
                 // Handle label commands directly in applyEffect
+                return processLayerCommand(effectName);
+            } else if (parts.length >= 2 && parts[0].toLowerCase() === "select" && parts[1].toLowerCase() === "all") {
+                // Handle select all directly in applyEffect
+                return processLayerCommand(effectName);
+            } else if (parts.length >= 2 && parts[0].toLowerCase() === "deselect" && parts[1].toLowerCase() === "all") {
+                // Handle deselect all directly in applyEffect
                 return processLayerCommand(effectName);
             }
             return "Enter layer numbers (e.g., 1,2,4) or press Enter for selected layers";
