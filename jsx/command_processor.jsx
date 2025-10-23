@@ -1,4 +1,4 @@
-// Simple Effect Scanner V28 - Only scans 2 specific folders
+// Simple Effect Scanner V30 - Only scans 2 specific folders
 var allEffects = [];
 var allEffectsWithPaths = [];
 
@@ -124,8 +124,11 @@ function applyEffect(effectName) {
             action === "camera" || action === "null" || action === "adjustment") {
             // This is a layer creation command, use processCreateCommand
             return processCreateCommand(effectName);
-        } else if (action === "select" || action === "unselect" || action === "solo" || action === "unsolo") {
-            // This is a layer selection command that needs parameters
+        } else if (action === "select" || action === "unselect" || action === "solo" || action === "unsolo" ||
+                   action === "hide" || action === "show" || action === "mute" || action === "unmute" ||
+                   action === "audio" || action === "lock" || action === "unlock" || action === "shy" ||
+                   action === "unshy" || effectName === "motion blur" || effectName === "3d layer") {
+            // This is a layer property command that needs parameters
             return "Enter layer numbers (e.g., 1,2,4) or press Enter for selected layers";
         }
         
@@ -218,6 +221,14 @@ function processLayerCommand(command) {
         
         var parts = trimmedCommand.split(" ");
         var action = parts[0].toLowerCase();
+        
+        // Check for two-word commands
+        if (parts.length >= 2) {
+            var twoWordCommand = (parts[0] + " " + parts[1]).toLowerCase();
+            if (twoWordCommand === "motion blur" || twoWordCommand === "3d layer") {
+                action = twoWordCommand;
+            }
+        }
         
         app.beginUndoGroup(action.charAt(0).toUpperCase() + action.substring(1) + " Layers");
         
@@ -343,8 +354,272 @@ function processLayerCommand(command) {
             }
             return "Success: Unsolo layers " + layerNumbers;
             
+        } else if (action === "hide") {
+            if (parts.length < 2) {
+                return "Error: Please specify layer numbers. Example: hide 1,5,7";
+            }
+            
+            var layerNumbers = parts[1];
+            var numbers = layerNumbers.split(",");
+            var layerIndices = [];
+            
+            for (var i = 0; i < numbers.length; i++) {
+                var numStr = numbers[i].replace(/^\s+|\s+$/g, '');
+                var num = parseInt(numStr);
+                if (num >= 1 && num <= layers.length) {
+                    layerIndices.push(num);
+                } else {
+                    return "Error: Layer " + num + " does not exist. Composition has " + layers.length + " layers.";
+                }
+            }
+            
+            for (var h = 0; h < layerIndices.length; h++) {
+                layers[layerIndices[h]].enabled = false;
+            }
+            return "Success: Hide layers " + layerNumbers;
+            
+        } else if (action === "show") {
+            if (parts.length < 2) {
+                return "Error: Please specify layer numbers. Example: show 1,5,7";
+            }
+            
+            var layerNumbers = parts[1];
+            var numbers = layerNumbers.split(",");
+            var layerIndices = [];
+            
+            for (var i = 0; i < numbers.length; i++) {
+                var numStr = numbers[i].replace(/^\s+|\s+$/g, '');
+                var num = parseInt(numStr);
+                if (num >= 1 && num <= layers.length) {
+                    layerIndices.push(num);
+                } else {
+                    return "Error: Layer " + num + " does not exist. Composition has " + layers.length + " layers.";
+                }
+            }
+            
+            for (var s = 0; s < layerIndices.length; s++) {
+                layers[layerIndices[s]].enabled = true;
+            }
+            return "Success: Show layers " + layerNumbers;
+            
+        } else if (action === "mute") {
+            if (parts.length < 2) {
+                return "Error: Please specify layer numbers. Example: mute 1,5,7";
+            }
+            
+            var layerNumbers = parts[1];
+            var numbers = layerNumbers.split(",");
+            var layerIndices = [];
+            
+            for (var i = 0; i < numbers.length; i++) {
+                var numStr = numbers[i].replace(/^\s+|\s+$/g, '');
+                var num = parseInt(numStr);
+                if (num >= 1 && num <= layers.length) {
+                    layerIndices.push(num);
+                } else {
+                    return "Error: Layer " + num + " does not exist. Composition has " + layers.length + " layers.";
+                }
+            }
+            
+            for (var m = 0; m < layerIndices.length; m++) {
+                layers[layerIndices[m]].audioEnabled = false;
+            }
+            return "Success: Mute layers " + layerNumbers;
+            
+        } else if (action === "unmute") {
+            if (parts.length < 2) {
+                return "Error: Please specify layer numbers. Example: unmute 1,5,7";
+            }
+            
+            var layerNumbers = parts[1];
+            var numbers = layerNumbers.split(",");
+            var layerIndices = [];
+            
+            for (var i = 0; i < numbers.length; i++) {
+                var numStr = numbers[i].replace(/^\s+|\s+$/g, '');
+                var num = parseInt(numStr);
+                if (num >= 1 && num <= layers.length) {
+                    layerIndices.push(num);
+                } else {
+                    return "Error: Layer " + num + " does not exist. Composition has " + layers.length + " layers.";
+                }
+            }
+            
+            for (var u = 0; u < layerIndices.length; u++) {
+                layers[layerIndices[u]].audioEnabled = true;
+            }
+            return "Success: Unmute layers " + layerNumbers;
+            
+        } else if (action === "audio") {
+            if (parts.length < 2) {
+                return "Error: Please specify layer numbers. Example: audio 1,5,7";
+            }
+            
+            var layerNumbers = parts[1];
+            var numbers = layerNumbers.split(",");
+            var layerIndices = [];
+            
+            for (var i = 0; i < numbers.length; i++) {
+                var numStr = numbers[i].replace(/^\s+|\s+$/g, '');
+                var num = parseInt(numStr);
+                if (num >= 1 && num <= layers.length) {
+                    layerIndices.push(num);
+                } else {
+                    return "Error: Layer " + num + " does not exist. Composition has " + layers.length + " layers.";
+                }
+            }
+            
+            for (var a = 0; a < layerIndices.length; a++) {
+                layers[layerIndices[a]].audioEnabled = true;
+            }
+            return "Success: Enable audio for layers " + layerNumbers;
+            
+        } else if (action === "lock") {
+            if (parts.length < 2) {
+                return "Error: Please specify layer numbers. Example: lock 1,5,7";
+            }
+            
+            var layerNumbers = parts[1];
+            var numbers = layerNumbers.split(",");
+            var layerIndices = [];
+            
+            for (var i = 0; i < numbers.length; i++) {
+                var numStr = numbers[i].replace(/^\s+|\s+$/g, '');
+                var num = parseInt(numStr);
+                if (num >= 1 && num <= layers.length) {
+                    layerIndices.push(num);
+                } else {
+                    return "Error: Layer " + num + " does not exist. Composition has " + layers.length + " layers.";
+                }
+            }
+            
+            for (var l = 0; l < layerIndices.length; l++) {
+                layers[layerIndices[l]].locked = true;
+            }
+            return "Success: Lock layers " + layerNumbers;
+            
+        } else if (action === "unlock") {
+            if (parts.length < 2) {
+                return "Error: Please specify layer numbers. Example: unlock 1,5,7";
+            }
+            
+            var layerNumbers = parts[1];
+            var numbers = layerNumbers.split(",");
+            var layerIndices = [];
+            
+            for (var i = 0; i < numbers.length; i++) {
+                var numStr = numbers[i].replace(/^\s+|\s+$/g, '');
+                var num = parseInt(numStr);
+                if (num >= 1 && num <= layers.length) {
+                    layerIndices.push(num);
+                } else {
+                    return "Error: Layer " + num + " does not exist. Composition has " + layers.length + " layers.";
+                }
+            }
+            
+            for (var ul = 0; ul < layerIndices.length; ul++) {
+                layers[layerIndices[ul]].locked = false;
+            }
+            return "Success: Unlock layers " + layerNumbers;
+            
+        } else if (action === "shy") {
+            if (parts.length < 2) {
+                return "Error: Please specify layer numbers. Example: shy 1,5,7";
+            }
+            
+            var layerNumbers = parts[1];
+            var numbers = layerNumbers.split(",");
+            var layerIndices = [];
+            
+            for (var i = 0; i < numbers.length; i++) {
+                var numStr = numbers[i].replace(/^\s+|\s+$/g, '');
+                var num = parseInt(numStr);
+                if (num >= 1 && num <= layers.length) {
+                    layerIndices.push(num);
+                } else {
+                    return "Error: Layer " + num + " does not exist. Composition has " + layers.length + " layers.";
+                }
+            }
+            
+            for (var sh = 0; sh < layerIndices.length; sh++) {
+                layers[layerIndices[sh]].shy = true;
+            }
+            return "Success: Shy layers " + layerNumbers;
+            
+        } else if (action === "unshy") {
+            if (parts.length < 2) {
+                return "Error: Please specify layer numbers. Example: unshy 1,5,7";
+            }
+            
+            var layerNumbers = parts[1];
+            var numbers = layerNumbers.split(",");
+            var layerIndices = [];
+            
+            for (var i = 0; i < numbers.length; i++) {
+                var numStr = numbers[i].replace(/^\s+|\s+$/g, '');
+                var num = parseInt(numStr);
+                if (num >= 1 && num <= layers.length) {
+                    layerIndices.push(num);
+                } else {
+                    return "Error: Layer " + num + " does not exist. Composition has " + layers.length + " layers.";
+                }
+            }
+            
+            for (var ush = 0; ush < layerIndices.length; ush++) {
+                layers[layerIndices[ush]].shy = false;
+            }
+            return "Success: Unshy layers " + layerNumbers;
+            
+        } else if (action === "motion blur") {
+            if (parts.length < 3) {
+                return "Error: Please specify layer numbers. Example: motion blur 1,5,7";
+            }
+            
+            var layerNumbers = parts[2];
+            var numbers = layerNumbers.split(",");
+            var layerIndices = [];
+            
+            for (var i = 0; i < numbers.length; i++) {
+                var numStr = numbers[i].replace(/^\s+|\s+$/g, '');
+                var num = parseInt(numStr);
+                if (num >= 1 && num <= layers.length) {
+                    layerIndices.push(num);
+                } else {
+                    return "Error: Layer " + num + " does not exist. Composition has " + layers.length + " layers.";
+                }
+            }
+            
+            for (var mb = 0; mb < layerIndices.length; mb++) {
+                layers[layerIndices[mb]].motionBlur = true;
+            }
+            return "Success: Enable motion blur for layers " + layerNumbers;
+            
+        } else if (action === "3d layer") {
+            if (parts.length < 3) {
+                return "Error: Please specify layer numbers. Example: 3d layer 1,5,7";
+            }
+            
+            var layerNumbers = parts[2];
+            var numbers = layerNumbers.split(",");
+            var layerIndices = [];
+            
+            for (var i = 0; i < numbers.length; i++) {
+                var numStr = numbers[i].replace(/^\s+|\s+$/g, '');
+                var num = parseInt(numStr);
+                if (num >= 1 && num <= layers.length) {
+                    layerIndices.push(num);
+                } else {
+                    return "Error: Layer " + num + " does not exist. Composition has " + layers.length + " layers.";
+                }
+            }
+            
+            for (var d3 = 0; d3 < layerIndices.length; d3++) {
+                layers[layerIndices[d3]].threeDLayer = true;
+            }
+            return "Success: Enable 3D for layers " + layerNumbers;
+            
         } else {
-            return "Error: Unknown command '" + action + "'. Use: select, unselect, solo, or unsolo";
+            return "Error: Unknown command '" + action + "'. Use: select, unselect, solo, unsolo, hide, show, mute, unmute, audio, lock, unlock, shy, unshy, motion blur, 3d layer";
         }
         
                 } catch (e) {
@@ -704,7 +979,18 @@ function addLayerCommands() {
         "select",
         "solo",
         "unselect",
-        "unsolo"
+        "unsolo",
+        "hide",
+        "show",
+        "mute",
+        "unmute",
+        "audio",
+        "lock",
+        "unlock",
+        "shy",
+        "unshy",
+        "motion blur",
+        "3d layer"
     ];
     
     // Add commands to the effects list
