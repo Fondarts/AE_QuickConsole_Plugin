@@ -1,4 +1,4 @@
-// Simple Effect Scanner V50 - Only scans 2 specific folders
+// Simple Effect Scanner V51 - Only scans 2 specific folders
 var allEffects = [];
 var allEffectsWithPaths = [];
 
@@ -877,8 +877,14 @@ function processLayerCommand(command) {
             }
             
             try {
-                // Precompose selected layers
-                var newComp = comp.layers.precompose(selectedLayers, compName);
+                // Get layer indices from selected layers
+                var layerIndices = [];
+                for (var i = 0; i < selectedLayers.length; i++) {
+                    layerIndices.push(selectedLayers[i].index);
+                }
+                
+                // Precompose selected layers using correct API
+                var newComp = comp.layers.precompose(layerIndices, compName);
                 return "Success: Precomposed " + selectedLayers.length + " layers into '" + compName + "'";
             } catch (e) {
                 return "Error: Could not precompose layers. " + e.toString();
