@@ -19,13 +19,41 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            margin: 0;
+            padding: 0;
+            border: none;
         }
         
+        /* Hide CEP window chrome */
+        html, body {
+            -webkit-app-region: no-drag;
+        }
+        
+        /* Make the entire window transparent and borderless */
+        body {
+            background: transparent !important;
+            border: none !important;
+            outline: none !important;
+        }
+        
+        /* Hide any potential window borders */
+        * {
+            border: none !important;
+            outline: none !important;
+        }
+        
+        /* Ensure the container fills the entire window */
         .spotlight-container {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
+            width: 100vw;
+            height: 100vh;
+            max-width: none;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
             position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .search-bar {
@@ -215,7 +243,7 @@
         <div class="search-bar">
             <div class="search-icon">🔍</div>
             <input type="text" id="search-input" class="search-input" placeholder="Search effects and commands..." autocomplete="off">
-            <div class="version-indicator">V66</div>
+            <div class="version-indicator">V67</div>
             <div class="config-container">
                 <button class="config-button" id="config-btn">⚙️</button>
                 <div class="config-menu" id="config-menu">

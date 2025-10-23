@@ -1,4 +1,4 @@
-// Simple Effect Scanner V66 - Spotlight-style minimal interface
+// Simple Effect Scanner V67 - Borderless window interface
 var allEffects = [];
 var allEffectsWithPaths = [];
 

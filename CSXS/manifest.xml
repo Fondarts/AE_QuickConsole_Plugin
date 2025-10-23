@@ -29,9 +29,17 @@
           <Menu>Command Console</Menu> 
           <Geometry> 
             <Size> 
-              <Width>400</Width> 
-              <Height>500</Height> 
+              <Width>600</Width> 
+              <Height>200</Height> 
             </Size> 
+            <MinSize> 
+              <Width>400</Width> 
+              <Height>100</Height> 
+            </MinSize> 
+            <MaxSize> 
+              <Width>800</Width> 
+              <Height>600</Height> 
+            </MaxSize> 
           </Geometry> 
         </UI> 
       </DispatchInfo> 
