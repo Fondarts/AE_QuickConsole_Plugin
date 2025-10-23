@@ -1,4 +1,4 @@
-// Simple Effect Scanner V48 - Only scans 2 specific folders
+// Simple Effect Scanner V49 - Only scans 2 specific folders
 var allEffects = [];
 var allEffectsWithPaths = [];
 
@@ -1331,7 +1331,7 @@ function processCommand(command) {
                    action === "audio" || action === "lock" || action === "unlock" || action === "shy" ||
                    action === "unshy" || action === "motion blur" || action === "3d layer" || action === "unparent" ||
                    action === "untrack matte" || action === "deselect all" || action === "select all" ||
-                   (parts.length >= 2 && parts[0].toLowerCase() === "label")) {
+                   action === "precompose" || (parts.length >= 2 && parts[0].toLowerCase() === "label")) {
             return processLayerCommand(command);
         } else if (action === "solid" || action === "text" || action === "light" || 
                    action === "camera" || action === "null" || action === "adjustment") {
