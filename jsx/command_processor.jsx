@@ -1,4 +1,4 @@
-// Simple Effect Scanner V54 - Only scans 2 specific folders
+// Simple Effect Scanner V55 - Only scans 2 specific folders
 var allEffects = [];
 var allEffectsWithPaths = [];
 
@@ -130,7 +130,7 @@ function applyEffect(effectName) {
                    action === "unshy" || effectName === "motion blur" || effectName === "3d layer" ||
                    effectName === "parent to" || effectName === "track matte" || action === "scale" || action === "opacity" ||
                    action === "precompose" || action === "duplicate" || effectName === "center anchor" ||
-                   effectName === "fit to comp" || effectName === "reset transform" || (parts.length >= 2 && parts[0].toLowerCase() === "label")) {
+                   effectName === "fit to comp" || effectName === "reset transform" || action === "delete" || (parts.length >= 2 && parts[0].toLowerCase() === "label")) {
             // This is a layer property command that needs parameters
             if (effectName === "parent to") {
                 return "Enter parent layer number (e.g., 5) and press Enter";
@@ -163,6 +163,9 @@ function applyEffect(effectName) {
                 return processLayerCommand(effectName);
             } else if (effectName === "reset transform") {
                 // Handle reset transform directly in applyEffect
+                return processLayerCommand(effectName);
+            } else if (action === "delete") {
+                // Handle delete directly in applyEffect
                 return processLayerCommand(effectName);
             }
             return "Enter layer numbers (e.g., 1,2,4) or press Enter for selected layers";
@@ -1050,8 +1053,26 @@ function processLayerCommand(command) {
                 return "Error: Could not reset transform. " + e.toString();
             }
             
+        } else if (action === "delete") {
+            var selectedLayers = comp.selectedLayers;
+            if (!selectedLayers || selectedLayers.length === 0) {
+                return "Error: No layers selected. Please select layers to delete.";
+            }
+            
+            try {
+                var deletedCount = 0;
+                for (var d = 0; d < selectedLayers.length; d++) {
+                    var layer = selectedLayers[d];
+                    layer.remove();
+                    deletedCount++;
+                }
+                return "Success: Deleted " + deletedCount + " layers";
+            } catch (e) {
+                return "Error: Could not delete layers. " + e.toString();
+            }
+            
         } else {
-            return "Error: Unknown command '" + action + "'. Use: select, unselect, solo, unsolo, hide, show, mute, unmute, audio, lock, unlock, shy, unshy, motion blur, 3d layer, parent to, track matte, unparent, untrack matte, select all, deselect all, label, scale, opacity, precompose, duplicate, center anchor, fit to comp, reset transform";
+            return "Error: Unknown command '" + action + "'. Use: select, unselect, solo, unsolo, hide, show, mute, unmute, audio, lock, unlock, shy, unshy, motion blur, 3d layer, parent to, track matte, unparent, untrack matte, select all, deselect all, label, scale, opacity, precompose, duplicate, center anchor, fit to comp, reset transform, delete";
         }
         
                 } catch (e) {
@@ -1452,7 +1473,8 @@ function addLayerCommands() {
         "duplicate",
         "center anchor",
         "fit to comp",
-        "reset transform"
+        "reset transform",
+        "delete"
     ];
     
     // Add commands to the effects list
@@ -1514,7 +1536,7 @@ function processCommand(command) {
                    action === "unshy" || action === "motion blur" || action === "3d layer" || action === "unparent" ||
                    action === "untrack matte" || action === "deselect all" || action === "select all" ||
                    action === "precompose" || action === "duplicate" || action === "center anchor" ||
-                   action === "fit to comp" || action === "reset transform" || (parts.length >= 2 && parts[0].toLowerCase() === "label")) {
+                   action === "fit to comp" || action === "reset transform" || action === "delete" || (parts.length >= 2 && parts[0].toLowerCase() === "label")) {
             return processLayerCommand(command);
         } else if (action === "solid" || action === "text" || action === "light" || 
                    action === "camera" || action === "null" || action === "adjustment") {
