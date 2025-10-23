@@ -1,4 +1,4 @@
-// Simple Effect Scanner V37 - Only scans 2 specific folders
+// Simple Effect Scanner V38 - Only scans 2 specific folders
 var allEffects = [];
 var allEffectsWithPaths = [];
 
@@ -746,16 +746,25 @@ function processLayerCommand(command) {
             }
             return "Success: Deselected all layers";
             
-        } else if (action === "label") {
+        } else if (action === "label" || (parts.length >= 2 && parts[0].toLowerCase() === "label")) {
             if (parts.length < 2) {
                 return "Error: Please specify label color. Example: label red";
             }
             
-            var labelColor = parts[1].toLowerCase();
+            // Handle multi-word label colors
+            var labelColor;
+            if (parts.length >= 3 && parts[1].toLowerCase() === "sea" && parts[2].toLowerCase() === "foam") {
+                labelColor = "sea foam";
+            } else if (parts.length >= 3 && parts[1].toLowerCase() === "dark" && parts[2].toLowerCase() === "green") {
+                labelColor = "dark green";
+            } else {
+                labelColor = parts[1].toLowerCase();
+            }
+            
             var labelMap = {
                 "none": 0, "red": 1, "yellow": 2, "aqua": 3, "pink": 4, "lavender": 5,
-                "peach": 6, "sea": 7, "foam": 7, "blue": 8, "green": 9, "purple": 10,
-                "orange": 11, "brown": 12, "fuchsia": 13, "cyan": 14, "sandstone": 15, "dark": 16
+                "peach": 6, "sea foam": 7, "blue": 8, "green": 9, "purple": 10,
+                "orange": 11, "brown": 12, "fuchsia": 13, "cyan": 14, "sandstone": 15, "dark green": 16
             };
             
             var labelValue = labelMap[labelColor];
@@ -1262,7 +1271,9 @@ function processCommand(command) {
         // Check for two-word commands
         if (parts.length >= 2) {
             var twoWordCommand = (parts[0] + " " + parts[1]).toLowerCase();
-            if (twoWordCommand === "motion blur" || twoWordCommand === "3d layer" || twoWordCommand === "parent to" || twoWordCommand === "track matte") {
+            if (twoWordCommand === "motion blur" || twoWordCommand === "3d layer" || twoWordCommand === "parent to" || twoWordCommand === "track matte" ||
+                twoWordCommand === "select all" || twoWordCommand === "deselect all" || twoWordCommand === "untrack matte" ||
+                parts[0].toLowerCase() === "label") {
                 action = twoWordCommand;
             }
         }
@@ -1274,10 +1285,8 @@ function processCommand(command) {
                    action === "hide" || action === "show" || action === "mute" || action === "unmute" ||
                    action === "audio" || action === "lock" || action === "unlock" || action === "shy" ||
                    action === "unshy" || action === "motion blur" || action === "3d layer" || action === "unparent" ||
-                   action === "untrack" || action === "deselect" || action === "label") {
-            return processLayerCommand(command);
-        } else if (action === "unparent" || action === "untrack" || action === "deselect" || action === "label" ||
-                   (action === "select" && parts[1] === "all")) {
+                   action === "untrack matte" || action === "deselect all" || action === "select all" ||
+                   (action === "label" && parts.length >= 2)) {
             return processLayerCommand(command);
         } else if (action === "solid" || action === "text" || action === "light" || 
                    action === "camera" || action === "null" || action === "adjustment") {
