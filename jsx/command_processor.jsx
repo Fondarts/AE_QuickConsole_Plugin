@@ -1,4 +1,4 @@
-// Simple Effect Scanner V43 - Only scans 2 specific folders
+// Simple Effect Scanner V44 - Only scans 2 specific folders
 var allEffects = [];
 var allEffectsWithPaths = [];
 
@@ -745,14 +745,14 @@ function processLayerCommand(command) {
             return "Success: Removed track matte from " + untrackedCount + " layers";
             
         } else if (action === "select" && parts[1] === "all") {
-            for (var sa = 1; sa <= layers.length; sa++) {
-                layers[sa - 1].selected = true; // Convert 1-based to 0-based indexing
+            for (var sa = 1; sa <= comp.numLayers; sa++) {
+                comp.layer(sa).selected = true; // Use correct After Effects API
             }
-            return "Success: Selected all " + layers.length + " layers";
+            return "Success: Selected all " + comp.numLayers + " layers";
             
         } else if (action === "deselect" && parts[1] === "all") {
-            for (var da = 1; da <= layers.length; da++) {
-                layers[da - 1].selected = false; // Convert 1-based to 0-based indexing
+            for (var da = 1; da <= comp.numLayers; da++) {
+                comp.layer(da).selected = false; // Use correct After Effects API
             }
             return "Success: Deselected all layers";
             
