@@ -1,4 +1,4 @@
-// Simple Effect Scanner V52 - Only scans 2 specific folders
+// Simple Effect Scanner V53 - Only scans 2 specific folders
 var allEffects = [];
 var allEffectsWithPaths = [];
 
@@ -931,13 +931,32 @@ function processLayerCommand(command) {
                 var centeredCount = 0;
                 for (var ca = 0; ca < selectedLayers.length; ca++) {
                     var layer = selectedLayers[ca];
-                    var anchorPoint = layer.property("Transform").property("Anchor Point");
-                    if (anchorPoint) {
+                    var transform = layer.property("Transform");
+                    var anchorPoint = transform.property("Anchor Point");
+                    var position = transform.property("Position");
+                    
+                    if (anchorPoint && position) {
+                        // Get current anchor point and position
+                        var currentAnchor = anchorPoint.value;
+                        var currentPosition = position.value;
+                        
                         // Get layer dimensions
                         var width = layer.width;
                         var height = layer.height;
-                        // Center anchor point
-                        anchorPoint.setValue([width / 2, height / 2]);
+                        
+                        // Calculate new anchor point (center of layer)
+                        var newAnchor = [width / 2, height / 2];
+                        
+                        // Calculate the difference
+                        var anchorDiff = [newAnchor[0] - currentAnchor[0], newAnchor[1] - currentAnchor[1]];
+                        
+                        // Set new anchor point
+                        anchorPoint.setValue(newAnchor);
+                        
+                        // Adjust position to compensate for anchor point change
+                        var newPosition = [currentPosition[0] + anchorDiff[0], currentPosition[1] + anchorDiff[1]];
+                        position.setValue(newPosition);
+                        
                         centeredCount++;
                     }
                 }
